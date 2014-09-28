@@ -1,19 +1,9 @@
 package edu.oakland.racetracker;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,99 +14,56 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+	private NetworkHelper mNetworkHelper;
 	private TextView mTextOutput;
-	private EditText mUrlInput;
+	private EditText mURL, mUserID, mFirstName, mLastName, mTimeStamp;
 	private Button mGetButton;
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		mTextOutput = (TextView) findViewById(R.id.text);
-		mUrlInput = (EditText) findViewById(R.id.edit);
-		mGetButton = (Button) findViewById(R.id.button);
+		mNetworkHelper = new NetworkHelper(this);
 		
-		mUrlInput.setText("http://www.google.com");
+		//Get references to GUI elements
+		mTextOutput = (TextView) findViewById(R.id.text);
+		mURL = (EditText) findViewById(R.id.URL);
+		mUserID = (EditText) findViewById(R.id.UserID);
+		mFirstName = (EditText) findViewById(R.id.FirstName);
+		mLastName = (EditText) findViewById(R.id.LastName);
+		mTimeStamp = (EditText) findViewById(R.id.TimeStamp);
+		mGetButton = (Button) findViewById(R.id.button);
 		
 		mGetButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
-				String url = mUrlInput.getText().toString();
-				String path = getCacheDir() + "/test.log";
-				new AsyncTask<String, Void, File>(){
+				final String url = mURL.getText().toString();
+				final String userId = mUserID.getText().toString();
+				final String firstName = mFirstName.getText().toString();
+				final String lastName = mLastName.getText().toString();
+				final String timeStamp = mTimeStamp.getText().toString();
+				new AsyncTask<Void, Void, String>(){
 					@Override
-					protected File doInBackground(String... args) {
-						return downloadFile(args[0], args[1]);
+					protected String doInBackground(Void... args) {
+						String urlParameters = "";
+						try {
+							urlParameters = "serial=" + URLEncoder.encode(android.os.Build.SERIAL, "UTF-8") +
+							"&UserID=" + URLEncoder.encode(userId, "UTF-8") +
+							"&FirstName=" + URLEncoder.encode(firstName, "UTF-8") +
+							"&LastName=" + URLEncoder.encode(lastName, "UTF-8") +
+							"&TimeStamp=" + URLEncoder.encode(timeStamp, "UTF-8") +
+							"&model=" + URLEncoder.encode(android.os.Build.MODEL, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+						return mNetworkHelper.post(url, urlParameters);
 					}
 				    @Override
-				    protected void onPostExecute(File file){
-				    	if(file != null){
-				    		StringBuilder text = new StringBuilder();
-				    		try {
-				    		    BufferedReader br = new BufferedReader(new FileReader(file));
-				    		    String line;
-				    		    while ((line = br.readLine()) != null) {
-				    		        text.append(line);
-				    		        text.append('\n');
-				    		    }
-				    		}
-				    		catch (IOException e) {Log.e("MainActivity", e.getMessage());}
-				    		mTextOutput.setText(text.toString());
-				    	}
+				    protected void onPostExecute(String responseText){
+				    	Log.d("POST", responseText);
 				    }
-				}.execute(url, path);
+				}.execute();
 			}
 		});
-	}
-	
-	private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return (activeNetworkInfo != null && activeNetworkInfo.isConnected()/* && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI*/);
-    }
-	
-	
-	private File downloadFile(String address, String filePath){
-		File file = null;
-		 try {
-			 if(!isNetworkAvailable()){
-				 throw new IOException("No internet connection");
-			}
-			URL url = new URL(address);
-			URLConnection urlConnection = url.openConnection();
-			urlConnection.connect();
-			
-			final int BUFFER_SIZE = 64 * 1024;
-			//double length = urlConnection.getContentLength();
-			//double have = 0;
-			
-			InputStream is1 = url.openStream();
-			BufferedInputStream bis = new BufferedInputStream(is1, BUFFER_SIZE);
-
-			file = new File(filePath);
-			if(file.exists() && file.isFile()){ //overwrite
-				file.delete();
-			}
-			file.createNewFile();
-			file.setReadable(true, false);
-			file.setWritable(true, false);
-			file.setExecutable(true, false);
-			
-			FileOutputStream fos = new FileOutputStream(file);
-			byte[] baf = new byte[BUFFER_SIZE];
-			int chunk = 0;
-			while ((chunk = bis.read(baf, 0, BUFFER_SIZE)) > -1) {
-				//have += chunk;
-				fos.write(baf, 0, chunk);
-			}
-			fos.flush();
-			fos.close();
-			is1.close();
-			
-			file.setReadable(true, false);
-			file.setWritable(true, false);
-			file.setExecutable(true, false);
-		} catch (IOException e) {Log.e("MainActivity", e.getMessage());}
-		return file;
 	}
 }

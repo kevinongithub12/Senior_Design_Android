@@ -4,22 +4,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="${relativePackage}.${activityClass}" >
-
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/edit" />
+        android:layout_above="@+id/URL" />
     <EditText
-        android:id="@+id/edit"
+        android:id="@+id/URL"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_above="@+id/button" />
+        android:layout_above="@+id/UserID" 
+        android:hint="URL"
+        android:text="http://10.0.0.10:2220/Default2/Create"/>
+    <EditText
+        android:id="@+id/UserID"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/FirstName" 
+        android:hint="UserID"/>
+    <EditText
+        android:id="@+id/FirstName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/LastName" 
+        android:hint="FirstName"/>
+    <EditText
+        android:id="@+id/LastName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/TimeStamp" 
+        android:hint="LastName"/>
+    <EditText
+        android:id="@+id/TimeStamp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/button" 
+        android:hint="TimeStamp"
+        android:text="9/27/2014 5:38:38 PM"/>
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:text="GET" />
+        android:text="POST" />
 </RelativeLayout>
