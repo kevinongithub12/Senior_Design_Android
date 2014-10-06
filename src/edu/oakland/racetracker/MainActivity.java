@@ -1,69 +1,69 @@
 package edu.oakland.racetracker;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import android.app.Activity;
-import android.os.AsyncTask;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
+import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+import com.mapquest.android.maps.GeoPoint;
+import com.mapquest.android.maps.MapActivity;
+import com.mapquest.android.maps.MapView;
+
+public class MainActivity extends MapActivity{
 	private NetworkHelper mNetworkHelper;
 	private TextView mTextOutput;
 	private EditText mURL, mUserID, mFirstName, mLastName, mTimeStamp;
 	private Button mGetButton;
+	
+	private String url, userId, firstName, lastName, timeStamp;
+	private BroadcastReceiver mLocationChangeReceiver;
+
+	private MapView map;
+	/*urlParameters = "serial=" + URLEncoder.encode(android.os.Build.SERIAL, "UTF-8") +
+	"&UserID=" + URLEncoder.encode(userId, "UTF-8") +
+	"&FirstName=" + URLEncoder.encode(firstName, "UTF-8") +
+	"&LastName=" + URLEncoder.encode(lastName, "UTF-8") +
+	"&TimeStamp=" + URLEncoder.encode(timeStamp, "UTF-8") +
+	"&model=" + URLEncoder.encode(android.os.Build.MODEL, "UTF-8");*/
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		startService(new Intent(this, LocationService.class));
 		setContentView(R.layout.activity_main);
+		map = (MapView) findViewById(R.id.map);
+        map.getController().setZoom(5);
+		map.getController().setCenter(new GeoPoint(38.0,-104.0));
+		map.setBuiltInZoomControls(true);
 		
-		mNetworkHelper = new NetworkHelper(this);
-		
-		//Get references to GUI elements
-		mTextOutput = (TextView) findViewById(R.id.text);
-		mURL = (EditText) findViewById(R.id.URL);
-		mUserID = (EditText) findViewById(R.id.UserID);
-		mFirstName = (EditText) findViewById(R.id.FirstName);
-		mLastName = (EditText) findViewById(R.id.LastName);
-		mTimeStamp = (EditText) findViewById(R.id.TimeStamp);
-		mGetButton = (Button) findViewById(R.id.button);
-		
-		mGetButton.setOnClickListener(new OnClickListener(){
+		mLocationChangeReceiver = new BroadcastReceiver(){
 			@Override
-			public void onClick(View arg0) {
-				final String url = mURL.getText().toString();
-				final String userId = mUserID.getText().toString();
-				final String firstName = mFirstName.getText().toString();
-				final String lastName = mLastName.getText().toString();
-				final String timeStamp = mTimeStamp.getText().toString();
-				new AsyncTask<Void, Void, String>(){
-					@Override
-					protected String doInBackground(Void... args) {
-						String urlParameters = "";
-						try {
-							urlParameters = "serial=" + URLEncoder.encode(android.os.Build.SERIAL, "UTF-8") +
-							"&UserID=" + URLEncoder.encode(userId, "UTF-8") +
-							"&FirstName=" + URLEncoder.encode(firstName, "UTF-8") +
-							"&LastName=" + URLEncoder.encode(lastName, "UTF-8") +
-							"&TimeStamp=" + URLEncoder.encode(timeStamp, "UTF-8") +
-							"&model=" + URLEncoder.encode(android.os.Build.MODEL, "UTF-8");
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-						return mNetworkHelper.post(url, urlParameters);
-					}
-				    @Override
-				    protected void onPostExecute(String responseText){
-				    	Log.d("POST", responseText);
-				    }
-				}.execute();
-			}
-		});
+			public void onReceive(Context arg0, Intent arg1) {
+				Point p = LocationService.getLastPoint();
+				map.getController().setCenter(new GeoPoint(p.latitude, p.longitude));
+				map.getController().setZoom(20);
+			}	
+		};
+		LocalBroadcastManager.getInstance(this).registerReceiver(mLocationChangeReceiver, new IntentFilter("location_changed"));
+	}
+	
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		if(mLocationChangeReceiver != null){
+		    unregisterReceiver(mLocationChangeReceiver);
+		}
+	}
+
+	@Override
+	protected boolean isRouteDisplayed() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -1,51 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="${relativePackage}.${activityClass}" >
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/URL" />
-    <EditText
-        android:id="@+id/URL"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/UserID" 
-        android:hint="URL"
-        android:text="http://10.0.0.10:2220/Default2/Create"/>
-    <EditText
-        android:id="@+id/UserID"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/FirstName" 
-        android:hint="UserID"/>
-    <EditText
-        android:id="@+id/FirstName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/LastName" 
-        android:hint="FirstName"/>
-    <EditText
-        android:id="@+id/LastName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/TimeStamp" 
-        android:hint="LastName"/>
-    <EditText
-        android:id="@+id/TimeStamp"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/button" 
-        android:hint="TimeStamp"
-        android:text="9/27/2014 5:38:38 PM"/>
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="POST" />
+	android:id="@+id/container"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">   
+    <com.mapquest.android.maps.MapView
+	    android:id="@+id/map"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:clickable="true"
+	    android:enabled="true"
+	    android:apiKey="@string/api_key"
+	/>
 </RelativeLayout>

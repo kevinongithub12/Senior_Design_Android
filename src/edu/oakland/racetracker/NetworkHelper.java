@@ -140,7 +140,7 @@ public class NetworkHelper{
 		      connection.setRequestProperty("Content-Language", "en-US");  			
 		      connection.setUseCaches (false);
 		      connection.setDoInput(true);
-		      connection.setDoOutput(true);
+		      //connection.setDoOutput(true);
 
 		      DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		      wr.writeBytes (urlParameters);
