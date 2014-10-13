@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
@@ -17,8 +18,9 @@ public class LocationService extends Service implements LocationListener{
     //Ignore location updates before X time or X distance change
     private static final long LOCATION_TIME_TRIGGER = 1000*30;
 	private static final float LOCATION_DISTANCE_TRIGGER = 10;
-    
+	 private int iter;
     private LocationManager mLocationManager;
+	private MockLocationProvider mock;
     private static Location mSavedLocation;
     
     //Might have to tweak this for accuracy
@@ -52,9 +54,36 @@ public class LocationService extends Service implements LocationListener{
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		mSavedLocation = mLocationManager.getLastLocation();
 		List<String> providers = mLocationManager.getAllProviders();
-		for(String provider : providers){
-			mLocationManager.requestLocationUpdates(provider, LOCATION_TIME_TRIGGER, LOCATION_DISTANCE_TRIGGER, this);
-		}
+		
+		
+		mock = new MockLocationProvider("MOCK", this);
+		 
+	    //Set test location
+		new android.os.Handler().postDelayed(
+			    new Runnable() {
+			       
+
+					public void run() {
+			        	if(iter ==1){
+			        		mock.pushLocation(40.7127,-74.0059);
+			        	}
+			        	if(iter == 2){
+			        		mock.pushLocation(42.3314,-83.0458);
+			        	}
+			        	if(iter == 3){
+			        		mock.pushLocation(41.8369,-87.6847);
+			        	}
+			        	iter++;
+			        	
+			        	new Handler().postDelayed(this, 10000);
+			        }
+			    }, 
+			10000);
+	    
+		
+		//for(String provider : providers){
+			mLocationManager.requestLocationUpdates("MOCK", 0, 0, this);
+		//}
 	}
 	
 	@Override
@@ -68,11 +97,11 @@ public class LocationService extends Service implements LocationListener{
 	@Override
 	public void onLocationChanged(Location location) {
 		boolean better = isBetterLocation(mSavedLocation, location);
-		if(better){
+		
 			mSavedLocation = location;
 			new Intent("edu.oakland.racetracker.LOCATION_CHANGED");
-		}
-		Toast.makeText(this, "New location found", Toast.LENGTH_LONG).show();
+		
+		Toast.makeText(this, location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_LONG).show();
 		LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("location_changed"));
 	}
 
@@ -92,12 +121,9 @@ public class LocationService extends Service implements LocationListener{
 	}
 	
 	public static Point getLastPoint(){
-		Point p = new Point();
+		Point p = null;
 		if(mSavedLocation != null){
-		    p.latitude = mSavedLocation.getLatitude();
-		    p.longitude = mSavedLocation.getLongitude();
-		    p.altitude = mSavedLocation.getAltitude();
-		    p.time = mSavedLocation.getTime();
+			p = new Point(mSavedLocation.getLatitude(), mSavedLocation.getLongitude(), mSavedLocation.getTime());
 		}
 		return p;
 	}

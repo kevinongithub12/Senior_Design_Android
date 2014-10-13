@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <TabHost
+    android:id="@+id/map_tabhost"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+    <FrameLayout
+        android:id="@android:id/tabcontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp">
+        
+              <LinearLayout
+                  android:id="@+id/map_map_container"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical" >
+
+                      <com.mapquest.android.maps.MapView
+                          android:id="@+id/map_map"
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:apiKey="@string/api_key"
+                          android:clickable="true"
+                          android:enabled="true" />
+
+      </LinearLayout>
+      
+              
+              
+              
+              
+              
+                  <LinearLayout android:id="@+id/map_racer_list_container"
+        android:orientation="vertical"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+
+      <ListView android:id="@+id/map_racer_list"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+      </ListView>
+      </LinearLayout>
+              
+              
+              
+              
+              
+    </FrameLayout>
+</TabHost>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+</RelativeLayout>

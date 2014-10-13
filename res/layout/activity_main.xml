@@ -3,13 +3,34 @@
 	android:id="@+id/container"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">   
-    <com.mapquest.android.maps.MapView
-	    android:id="@+id/map"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:clickable="true"
-	    android:enabled="true"
-	    android:apiKey="@string/api_key"
-	/>
+    android:layout_height="fill_parent">
+
+    <Button
+        android:id="@+id/main_map_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/main_profile_button"
+        android:layout_alignLeft="@+id/main_profile_button"
+        android:layout_marginBottom="68dp"
+        android:text="Map Test" />
+
+    <Button
+        android:id="@+id/main_profile_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="170dp"
+        android:text="My Profile" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/main_profile_button"
+        android:layout_marginTop="63dp"
+        android:text="RaceTracker"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>
