@@ -18,6 +18,12 @@ public class MainActivity extends Activity{
 				startActivity(new Intent(MainActivity.this, ProfileActivity.class));
 			}
 		});
+		((Button) findViewById(R.id.main_creator_test)).setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				startActivity(new Intent(MainActivity.this, MapCreatorActivity.class));
+			}
+		});
 		((Button) findViewById(R.id.main_map_test)).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {

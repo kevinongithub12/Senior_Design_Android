@@ -87,7 +87,7 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mCamera.stopPreview();
         mCamera.release();
         mCamera = null;
-        RaceTrackerApp.mProfile.avatar = getDrawingCache();
+        //RaceTrackerApp.mProfile.avatar = getDrawingCache();
         this.onDraw(mCanvas);
 	}
 	
@@ -97,7 +97,7 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mCanvas = canvas;
 		super.onDraw(canvas);
 		Bitmap bmp;
-		if(RaceTrackerApp.mProfile.avatar == null){
+		if(RaceTrackerApp.mCurrentTrack == null){
 			DisplayMetrics metrics = new DisplayMetrics();
 			float logicalDensity = metrics.density;
 			int px = (int) Math.ceil(this.getWidth() * logicalDensity);
@@ -106,11 +106,11 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		  bmp = Bitmap.createScaledBitmap(bmp, 400, 400, true);
 		}
 		else{
-			bmp = Bitmap.createScaledBitmap(RaceTrackerApp.mProfile.avatar, 400, 400, true);
+			//bmp = Bitmap.createScaledBitmap(RaceTrackerApp.mProfile.avatar, 400, 400, true);
 		}
 		canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(bmp, 0, 0, new Paint());
-        RaceTrackerApp.mProfile.avatar = bmp;
+        //canvas.drawBitmap(bmp, 0, 0, new Paint());
+        //RaceTrackerApp.mProfile.avatar = bmp;
 	}
 
 	@Override

@@ -387,23 +387,24 @@ containing a value of this type.
         public static final int common_signin_btn_text_normal_light=0x7f020015;
         public static final int common_signin_btn_text_pressed_dark=0x7f020016;
         public static final int common_signin_btn_text_pressed_light=0x7f020017;
-        public static final int ic_launcher=0x7f020018;
-        public static final int ic_plusone_medium_off_client=0x7f020019;
-        public static final int ic_plusone_small_off_client=0x7f02001a;
-        public static final int ic_plusone_standard_off_client=0x7f02001b;
-        public static final int ic_plusone_tall_off_client=0x7f02001c;
-        public static final int location_marker=0x7f02001d;
-        public static final int powered_by_google_dark=0x7f02001e;
-        public static final int powered_by_google_light=0x7f02001f;
-        public static final int squidward=0x7f020020;
-        public static final int test_morgan=0x7f020021;
-        public static final int test_sanic=0x7f020022;
-        public static final int test_squidward=0x7f020023;
-        public static final int test_tina=0x7f020024;
+        public static final int greenfield=0x7f020018;
+        public static final int ic_launcher=0x7f020019;
+        public static final int ic_plusone_medium_off_client=0x7f02001a;
+        public static final int ic_plusone_small_off_client=0x7f02001b;
+        public static final int ic_plusone_standard_off_client=0x7f02001c;
+        public static final int ic_plusone_tall_off_client=0x7f02001d;
+        public static final int location_marker=0x7f02001e;
+        public static final int logo=0x7f02001f;
+        public static final int powered_by_google_dark=0x7f020020;
+        public static final int powered_by_google_light=0x7f020021;
+        public static final int squidward=0x7f020022;
+        public static final int test_morgan=0x7f020023;
+        public static final int test_sanic=0x7f020024;
+        public static final int test_squidward=0x7f020025;
+        public static final int test_tina=0x7f020026;
     }
     public static final class id {
         public static final int book_now=0x7f080010;
-        public static final int button2=0x7f080021;
         public static final int buyButton=0x7f08000a;
         public static final int buy_now=0x7f08000f;
         public static final int buy_with_google=0x7f08000e;
@@ -413,39 +414,56 @@ containing a value of this type.
         public static final int holo_dark=0x7f080005;
         public static final int holo_light=0x7f080006;
         public static final int hybrid=0x7f080004;
-        public static final int imageView1=0x7f08001e;
-        public static final int label=0x7f08002c;
-        public static final int main_map_test=0x7f080015;
-        public static final int main_profile_button=0x7f080016;
-        public static final int map_map=0x7f08001a;
-        public static final int map_map_container=0x7f080019;
-        public static final int map_racer_list=0x7f08001c;
-        public static final int map_racer_list_container=0x7f08001b;
-        public static final int map_tabhost=0x7f080018;
+        public static final int imageView1=0x7f080015;
+        public static final int imageView2=0x7f080017;
+        public static final int main_creator_test=0x7f080019;
+        public static final int main_map_test=0x7f08001b;
+        public static final int main_profile_button=0x7f08001d;
+        public static final int map_map=0x7f08001e;
+        public static final int map_map_container=0x7f080020;
+        public static final int map_racer_list=0x7f080022;
+        public static final int map_racer_list_container=0x7f080021;
+        public static final int map_tabhost=0x7f08001f;
         public static final int match_parent=0x7f08000c;
+        public static final int menu_load=0x7f08003c;
+        public static final int menu_save=0x7f08003b;
         public static final int monochrome=0x7f080013;
         public static final int none=0x7f080000;
         public static final int normal=0x7f080001;
-        public static final int notification_time=0x7f08002b;
-        public static final int notification_title=0x7f08002a;
         public static final int production=0x7f080007;
-        public static final int profile_edit=0x7f080023;
-        public static final int racer_list_icon=0x7f080029;
-        public static final int racer_list_icon_container=0x7f080028;
+        public static final int profile_avatar=0x7f080023;
+        public static final int profile_distance=0x7f080032;
+        public static final int profile_edit=0x7f080026;
+        public static final int profile_lost=0x7f08002f;
+        public static final int profile_name=0x7f080024;
+        public static final int profile_speed=0x7f080035;
+        public static final int profile_title=0x7f080025;
+        public static final int profile_total_races=0x7f080029;
+        public static final int profile_won=0x7f08002c;
+        public static final int racer_list_avatar=0x7f080037;
+        public static final int racer_list_avatar_container=0x7f080036;
+        public static final int racer_list_name=0x7f080038;
+        public static final int racer_list_speed=0x7f08003a;
+        public static final int racer_list_title=0x7f080039;
         public static final int sandbox=0x7f080008;
         public static final int satellite=0x7f080002;
         public static final int selectionDetails=0x7f08000b;
         public static final int strict_sandbox=0x7f080009;
-        public static final int tableRow1=0x7f08001d;
-        public static final int tableRow2=0x7f08001f;
-        public static final int tableRow3=0x7f080020;
-        public static final int tableRow4=0x7f080022;
-        public static final int tableRow5=0x7f080024;
-        public static final int tableRow6=0x7f080025;
-        public static final int tableRow7=0x7f080026;
-        public static final int tableRow8=0x7f080027;
+        public static final int tableRow1=0x7f080016;
+        public static final int tableRow2=0x7f080018;
+        public static final int tableRow3=0x7f08001a;
+        public static final int tableRow4=0x7f08001c;
+        public static final int tableRow5=0x7f080027;
+        public static final int tableRow6=0x7f08002a;
+        public static final int tableRow7=0x7f08002d;
+        public static final int tableRow8=0x7f080030;
+        public static final int tableRow9=0x7f080033;
         public static final int terrain=0x7f080003;
-        public static final int textView1=0x7f080017;
+        public static final int textView11=0x7f080034;
+        public static final int textView2=0x7f080028;
+        public static final int textView4=0x7f08002e;
+        public static final int textView5=0x7f080031;
+        public static final int textView6=0x7f08002b;
         public static final int wrap_content=0x7f08000d;
     }
     public static final class integer {
@@ -453,9 +471,10 @@ containing a value of this type.
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int activity_mymap=0x7f030001;
-        public static final int activity_profile=0x7f030002;
-        public static final int notification_list_item=0x7f030003;
+        public static final int activity_map_creator=0x7f030001;
+        public static final int activity_mymap=0x7f030002;
+        public static final int activity_profile=0x7f030003;
+        public static final int racer_list_item=0x7f030004;
     }
     public static final class string {
         public static final int api_key=0x7f07001b;
@@ -593,7 +612,8 @@ containing a value of this type.
         public static final int WalletFragmentDefaultStyle=0x7f050004;
     }
     public static final class xml {
-        public static final int preferences=0x7f040000;
+        public static final int menu=0x7f040000;
+        public static final int preferences=0x7f040001;
     }
     public static final class styleable {
         /** Attributes that can be used with a AdsAttrs.

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp" >
+    <LinearLayout
+        android:id="@+id/racer_list_avatar_container"
+        android:layout_width="96dp"
+        android:layout_height="match_parent"
+        android:gravity="center">
+    <ImageView
+        android:id="@+id/racer_list_avatar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="centerInside"/>
+    </LinearLayout>
+     <LinearLayout
+         android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+         android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="5dp"
+    android:layout_gravity="right"
+        android:orientation="horizontal">
+        <TextView
+        android:id="@+id/racer_list_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+         android:layout_weight="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:freezesText="true"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:textSize="18dp" >
+    </TextView>
+         <TextView
+        android:id="@+id/racer_list_title"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:textColor="@android:color/white"
+        android:textSize="16dp" >
+    </TextView>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/racer_list_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="16dp" >
+    </TextView>
+    </LinearLayout>
+</LinearLayout>
