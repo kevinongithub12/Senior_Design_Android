@@ -9,22 +9,21 @@ import org.json.JSONObject;
 import android.app.Application;
 
 import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class RaceTrackerApp extends Application{
 
-	public static ParseUser mUser;
+	public static ParseRacer mUser;
 	public static JSONRacer mRacer;
-	public static JSONMap mCurrentPositions; //To keep track of the player's positions
-	public static JSONMap mCurrentTrack;     //Which we can line up against this track
+	//public static JSONMap mCurrentPositions; //To keep trackPoints of the player's positions
+	//public static JSONMap mCurrentTrack;     //Which we can line up against this trackPoints
 	
 	
 	public static List<JSONRacer> testRacers = new ArrayList<JSONRacer>();
 	
 	public void onCreate() {
-		
 		try {
 			testRacers.add(new JSONRacer(new JSONObject(JSONRacer.MORGAN)));
 			testRacers.add(new JSONRacer(new JSONObject(JSONRacer.TINA)));
@@ -33,33 +32,37 @@ public class RaceTrackerApp extends Application{
 		} catch (JSONException e2) {}
 		
 		
-		  Parse.enableLocalDatastore(this);
+		  //Parse.enableLocalDatastore(this);
+		  
 		  Parse.initialize(this, "fKnBZJbUYPNfV5BgcPGPAFhem5Y6Xpp5mZPkJ9fk", "nnj2aQxEGt0zmbVEArDyyNNKzDqCI144cvc05Fy8");
-		  ParseUser.enableAutomaticUser();
-		  mUser = ParseUser.getCurrentUser();
-		  
-		  ArrayList<JSONMap> maps = new ArrayList<JSONMap>();
-		  maps.add(new JSONMap());
-		  ParseObject p = new ParseObject("Map");
-		  p.addAllUnique("JSONMap", maps);
-		  p.saveInBackground();
-		  mUser.saveInBackground();
-		  
+		  //ParseUser.enableAutomaticUser();
+		  ParseUser user = new ParseUser();
+		  user.setUsername("my name");
+		  user.setPassword("my pass");
+		  user.setEmail("email@example.com");
 		  try {
-				mRacer = new JSONRacer(mUser.getJSONObject("racerProfile"));
-			} catch (Exception e) {
-				try {
-					mUser.put("racerProfile", new JSONRacer());
-					mUser.saveInBackground();
-				} catch (JSONException e1) {}
-			}
-		  mCurrentPositions = new JSONMap();
-		  mCurrentTrack = new JSONMap();
-		  try {
-			mRacer = new JSONRacer();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			user.signUp();
+		} catch (ParseException e) {
 		}
+		  try {
+			user = ParseUser.logIn("my name", "my pass");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			System.out.println();
+		}
+		  mUser = new ParseRacer(user);
+		  
+		  mUser.recordedCoordinates.put(new JSONPoint());
+		  mUser.recordedCoordinates.put(new JSONPoint());
+		  mUser.recordedCoordinates.put(new JSONPoint());
+		  
+		  mUser.saveInBackground(new SaveCallback(){
+			@Override
+			public void done(ParseException error) {
+				if(error != null){
+					System.out.println(error.getMessage());
+				}
+			}
+		  });
 	}
 }

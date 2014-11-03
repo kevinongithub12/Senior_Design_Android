@@ -52,16 +52,13 @@ public class LocationService extends Service implements LocationListener{
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		mSavedLocation = mLocationManager.getLastLocation();
 
-		
 		mock = new MockLocationProvider("MOCK", this);
 		 
 	    //Set test location
 		new android.os.Handler().postDelayed(
 			    new Runnable() {
-			       
-
 					public void run() {
-			        	if(iter ==1){
+			        	if(iter == 1){
 			        		mock.pushLocation(40.7127,-74.0059);
 			        	}
 			        	if(iter == 2){
@@ -121,10 +118,10 @@ public class LocationService extends Service implements LocationListener{
 		Toast.makeText(this, provider + " changed", Toast.LENGTH_LONG).show();
 	}
 	
-	public static Point getLastPoint(){
-		Point p = null;
+	public static JSONPoint getLastPoint(){
+		JSONPoint p = null;
 		if(mSavedLocation != null){
-			p = new Point(mSavedLocation.getLatitude(), mSavedLocation.getLongitude(), mSavedLocation.getTime());
+			p = new JSONPoint(mSavedLocation.getLatitude(), mSavedLocation.getLongitude(), mSavedLocation.getTime());
 		}
 		return p;
 	}

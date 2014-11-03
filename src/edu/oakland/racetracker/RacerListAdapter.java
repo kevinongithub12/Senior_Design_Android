@@ -1,7 +1,6 @@
 package edu.oakland.racetracker;
 
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
+import org.json.JSONException;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class RacerListAdapter extends ArrayAdapter < JSONRacer > {
+public class RacerListAdapter extends ArrayAdapter < ParseRacer > {
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
 	private int mRowLayout;
@@ -35,12 +34,21 @@ public class RacerListAdapter extends ArrayAdapter < JSONRacer > {
 		TextView timeText = (TextView) convertView.findViewById(R.id.racer_list_speed);
 		LinearLayout iconContainer = (LinearLayout) convertView.findViewById(R.id.racer_list_avatar_container);
 
-		JSONRacer ni = getItem(position);
+		ParseRacer ni = getItem(position);
 
-		imageView.setImageDrawable(mContext.getResources().getDrawable(ni.getAvatar()));
-		titleTextView.setText(ni.getTitle());
-		textView.setText(ni.getFirstName() + " " + ni.getLastName());
-		timeText.setText(ni.getCurrentSpeed() + "km/h");
+		//imageView.setImageDrawable(mContext.getResources().getDrawable(ni.avatar));
+		titleTextView.setText(ni.title);
+		textView.setText(ni.firstName + " " + ni.lastName);
+		
+		double speed = 0;
+		if(ni.recordedCoordinates != null && ni.recordedCoordinates.length() > 1){
+			try {
+				JSONPoint p1 = new JSONPoint(ni.recordedCoordinates.optJSONObject(ni.recordedCoordinates.length()-2));
+				JSONPoint p2 = new JSONPoint(ni.recordedCoordinates.optJSONObject(ni.recordedCoordinates.length()-1));
+				speed = p2.speedBetween(p1);
+			} catch (JSONException e) {e.printStackTrace();}
+		}
+		timeText.setText(speed + " km/h");
 		iconContainer.setBackgroundColor(Color.BLACK);
 		return convertView;
 	}

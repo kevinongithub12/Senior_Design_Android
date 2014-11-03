@@ -3,7 +3,7 @@ package edu.oakland.racetracker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
+//OBSOLETE
 public class JSONRacer extends JSONObject{
 	public static final String EMPTY = "{firstName:'',lastName:'',title:'',avatar:-1,totalRaces:0,wins:0,losses:0,totalDistance:0,currentSpeed:0}";
 	public static final String TINA = "{firstName:'Terra',lastName:'Branford',title:'Magitek Elite',avatar:"+R.drawable.test_tina+",totalRaces:100,wins:53,losses:47,totalDistance:10000,currentSpeed:10}";
@@ -64,9 +64,7 @@ public class JSONRacer extends JSONObject{
 		try {x = this.getInt("currentSpeed");} catch (JSONException e) {}
 		return x; 
 	}
-	
-	
-	
+
 	
 	//Setters
 	public void setAvatar(int x){

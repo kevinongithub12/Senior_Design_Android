@@ -3,6 +3,8 @@ package edu.oakland.racetracker;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -20,28 +22,39 @@ import com.mapquest.android.maps.MapView.MapViewEventListener;
 import com.mapquest.android.maps.Overlay.OverlayTapListener;
 import com.mapquest.android.maps.OverlayItem;
 import com.mapquest.android.maps.RectangleOverlay;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 public class MapCreatorActivity extends MapActivity{
 	private MapView map;
-	private DefaultItemizedOverlay itemOverlay;
-	private LineOverlay lineOverlay;
+	private DefaultItemizedOverlay routePointOverlay;
+	private LineOverlay routeLineOverlay;
 	private RectangleOverlay touchOverlay;
 	
-	public static List<OverlayItem> route = new ArrayList<OverlayItem>();
+	public static ParseTrack currentTrack = new ParseTrack(ParseUser.getCurrentUser());
 	
 	private boolean idiotFlag = false;
 	
 	private void drawRoute(){
 		List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
-		itemOverlay.clear();
-		for(OverlayItem item : route){
-			geoPoints.add(item.getPoint());
-			itemOverlay.addItem(item);
+		routePointOverlay.clear();
+		for(int i = 0; i < currentTrack.points.length(); i++){
+			try {
+				JSONTrackPoint item = new JSONTrackPoint(currentTrack.points.getJSONObject(i));
+				GeoPoint gp = new GeoPoint(item.getLatitude(), item.getLongitude());
+				geoPoints.add(gp);
+				routePointOverlay.addItem(new OverlayItem(gp, item.getDescription(), ""));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		if(geoPoints.isEmpty()){
 			geoPoints.add(new GeoPoint(.0,.0));
 		}
-	    lineOverlay.setData(geoPoints);
+	    routeLineOverlay.setData(geoPoints);
     	map.invalidate();
 	}
 	
@@ -52,11 +65,11 @@ public class MapCreatorActivity extends MapActivity{
 		
 		map = (MapView) findViewById(R.id.map_map);
 		
-		itemOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker)){
+		routePointOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker)){
     		@Override
 		    protected boolean onTap(int index){
     			idiotFlag = true;
-    			route.remove(index);
+    			currentTrack.points.remove(index);
     			drawRoute();
 		    	return true;
 		    }
@@ -69,7 +82,7 @@ public class MapCreatorActivity extends MapActivity{
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(5);
-    	lineOverlay = new LineOverlay(paint);
+    	routeLineOverlay = new LineOverlay(paint);
 
     	Paint paint1 = new Paint();
         paint1.setColor(Color.YELLOW);
@@ -82,7 +95,7 @@ public class MapCreatorActivity extends MapActivity{
 			@Override
 			public void onTap(GeoPoint arg0, MapView arg1) {
 				if(!idiotFlag){
-				    route.add(new OverlayItem(arg0, "", ""));
+					currentTrack.points.put(new JSONTrackPoint(arg0.getLatitude(), arg0.getLongitude(), System.currentTimeMillis(), 50, true, "This is a point!"));
 				    drawRoute();
 				}
 				else{
@@ -95,11 +108,11 @@ public class MapCreatorActivity extends MapActivity{
 		map.getController().setCenter(new GeoPoint(38.0,-104.0));
 		map.setBuiltInZoomControls(true);
 
-        lineOverlay.setKey("Line #1");
+        routeLineOverlay.setKey("Line #1");
         
-        map.getOverlays().add(lineOverlay);
+        map.getOverlays().add(routeLineOverlay);
         map.getOverlays().add(touchOverlay);
-    	map.getOverlays().add(itemOverlay);
+    	map.getOverlays().add(routePointOverlay);
 		
 		
 		map.invalidate();
@@ -140,11 +153,7 @@ public class MapCreatorActivity extends MapActivity{
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	
-	
-	
-	
+		
 	@Override
 	  public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -156,10 +165,23 @@ public class MapCreatorActivity extends MapActivity{
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	    case R.id.menu_load:
-	    	Toast.makeText(this, "Loaded track!", Toast.LENGTH_LONG).show();
+	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseTrack");
+	    	try {
+				List<ParseObject> savedTracks = query.find();
+				currentTrack = new ParseTrack(savedTracks.get(0));
+				drawRoute();
+				Toast.makeText(this, "Loaded trackPoints!", Toast.LENGTH_LONG).show();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	      break;
 	    case R.id.menu_save:
-	    	Toast.makeText(this, "Saved track!", Toast.LENGTH_LONG).show();
+	    	ParseTrack track = new ParseTrack(ParseUser.getCurrentUser());
+	    	track.name = "TEST";
+	    	track.points = currentTrack.points;
+	    	track.save();
+	    	Toast.makeText(this, "Saved trackPoints!", Toast.LENGTH_LONG).show();
 	      break;
 	    default:
 	      break;

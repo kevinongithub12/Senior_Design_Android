@@ -97,7 +97,7 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mCanvas = canvas;
 		super.onDraw(canvas);
 		Bitmap bmp;
-		if(RaceTrackerApp.mCurrentTrack == null){
+		if(true/*RaceTrackerApp.mCurrentTrack == null*/){
 			DisplayMetrics metrics = new DisplayMetrics();
 			float logicalDensity = metrics.density;
 			int px = (int) Math.ceil(this.getWidth() * logicalDensity);
