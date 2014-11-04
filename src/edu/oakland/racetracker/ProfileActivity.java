@@ -1,20 +1,15 @@
 package edu.oakland.racetracker;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 public class ProfileActivity extends Activity {
 
-	private JSONRacer mProfile = RaceTrackerApp.mRacer;
+	private ParseRacer mProfile;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -25,15 +20,15 @@ public class ProfileActivity extends Activity {
                 String value = extras.getString("profile");
                 System.out.println(value);
                try {
-				mProfile = new JSONRacer(new JSONObject(value));
-			} catch (JSONException e) {
+				//mProfile = new JSONRacer(new JSONObject(value));
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
             }
             
             //mProfile = RaceTrackerApp.testRacers.get(0);
-            if(mProfile.getAvatar() > 0){
+            /*if(mProfile.getAvatar() > 0){
             ((ImageView) findViewById(R.id.profile_avatar)).setImageDrawable(getResources().getDrawable(mProfile.getAvatar()));}
             ((TextView) findViewById(R.id.profile_name)).setText(mProfile.getFirstName() + " " + mProfile.getLastName());
             ((TextView) findViewById(R.id.profile_title)).setText(mProfile.getTitle());
@@ -41,7 +36,7 @@ public class ProfileActivity extends Activity {
             ((TextView) findViewById(R.id.profile_distance)).setText(mProfile.getTotalDistance()+"Km");
             ((TextView) findViewById(R.id.profile_won)).setText(mProfile.getWins()+"");
             ((TextView) findViewById(R.id.profile_lost)).setText(mProfile.getWins()+"");
-            ((TextView) findViewById(R.id.profile_speed)).setText(mProfile.getCurrentSpeed()+"Km/h");
+            ((TextView) findViewById(R.id.profile_speed)).setText(mProfile.getCurrentSpeed()+"Km/h");*/
             
             /*
             final AvatarSurfaceView asv = (AvatarSurfaceView) this.findViewById(R.id.profile_surfaceview);

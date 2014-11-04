@@ -16,14 +16,12 @@ public class MockLocationProvider {
     if(lm.getProvider(providerName) != null){
         lm.removeTestProvider(providerName);
     }
-    lm.addTestProvider(providerName, false, false, false, false, false, 
-      true, true, 0, 5);
+    lm.addTestProvider(providerName, false, false, false, false, false, true, true, 0, 5);
     lm.setTestProviderEnabled(providerName, true);
   }
  
   public void pushLocation(double lat, double lon) {
-    LocationManager lm = (LocationManager) ctx.getSystemService(
-      Context.LOCATION_SERVICE);
+    LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
  
     Location mockLocation = new Location(providerName);
     mockLocation.setElapsedRealtimeNanos(1);
@@ -36,8 +34,7 @@ public class MockLocationProvider {
   }
  
   public void shutdown() {
-    LocationManager lm = (LocationManager) ctx.getSystemService(
-      Context.LOCATION_SERVICE);
+    LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
     lm.removeTestProvider(providerName);
   }
 }

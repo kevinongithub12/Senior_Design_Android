@@ -59,13 +59,13 @@ public class LocationService extends Service implements LocationListener{
 			    new Runnable() {
 					public void run() {
 			        	if(iter == 1){
-			        		mock.pushLocation(40.7127,-74.0059);
+			        		mock.pushLocation(34.491973,-99.799804);
 			        	}
 			        	if(iter == 2){
-			        		mock.pushLocation(42.3314,-83.0458);
+			        		mock.pushLocation(35.491973,-99.799804);
 			        	}
 			        	if(iter == 3){
-			        		mock.pushLocation(41.8369,-87.6847);
+			        		mock.pushLocation(36.491973,-99.799804);
 			        	}
 			        	iter++;
 			        	

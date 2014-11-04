@@ -18,8 +18,11 @@ public class ParseTrack{
 	public ParseTrack(ParseObject object){
 		createdBy = (ParseUser) object.get("createdBy");
 		points = object.getJSONArray("points");
+		System.out.println(points.toString());
 		name = object.getString("name");
+		System.out.println(name);
 		shared = object.getBoolean("shared");
+		System.out.println(shared);
 	}
 	public void save(){
 		object.put("createdBy", createdBy);

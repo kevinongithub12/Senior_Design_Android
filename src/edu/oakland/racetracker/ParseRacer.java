@@ -1,6 +1,13 @@
 package edu.oakland.racetracker;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.json.JSONArray;
+
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -35,11 +42,29 @@ public class ParseRacer{
 			try {
 				avatar.save();
 			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
 	}
+	
+	public void setAvatarDrawable(Drawable drawable){
+		Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		avatar = new ParseFile(stream.toByteArray());
+	}
+	
+	public Drawable getAvatarDrawable(){
+		Drawable icon = null;
+		try {
+			icon = Drawable.createFromStream(new ByteArrayInputStream(avatar.getData()), "");
+			icon.setBounds(0 - icon.getIntrinsicWidth()/2, 0 - icon.getIntrinsicHeight(), icon.getIntrinsicWidth()/2, 0);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return icon;
+	}
+	
 	public void save() throws ParseException{
 		mUser.put("firstName", firstName);
 		mUser.put("lastName", lastName);

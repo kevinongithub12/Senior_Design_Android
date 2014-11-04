@@ -2,6 +2,7 @@ package edu.oakland.racetracker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONException;
 
@@ -95,7 +96,8 @@ public class MapCreatorActivity extends MapActivity{
 			@Override
 			public void onTap(GeoPoint arg0, MapView arg1) {
 				if(!idiotFlag){
-					currentTrack.points.put(new JSONTrackPoint(arg0.getLatitude(), arg0.getLongitude(), System.currentTimeMillis(), 50, true, "This is a point!"));
+					JSONPoint newPoint = new JSONTrackPoint(arg0.getLatitude(), arg0.getLongitude(), System.currentTimeMillis(), 50, true, "This is a point!");
+					currentTrack.points.put(newPoint);
 				    drawRoute();
 				}
 				else{
@@ -166,8 +168,16 @@ public class MapCreatorActivity extends MapActivity{
 	    switch (item.getItemId()) {
 	    case R.id.menu_load:
 	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseTrack");
+	    	query.whereEqualTo("createdBy", ParseUser.getCurrentUser());
 	    	try {
 				List<ParseObject> savedTracks = query.find();
+				for(ParseObject po : savedTracks){
+					Set<String> keys = po.keySet();
+					for(String key : keys){
+						System.out.println(key);
+					}
+				}
+				
 				currentTrack = new ParseTrack(savedTracks.get(0));
 				drawRoute();
 				Toast.makeText(this, "Loaded trackPoints!", Toast.LENGTH_LONG).show();
@@ -188,5 +198,4 @@ public class MapCreatorActivity extends MapActivity{
 	    }
 	    return true;
 	  } 
-	
 }

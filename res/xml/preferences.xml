@@ -2,14 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory
             android:title="General">            
-        <CheckBoxPreference
-                android:key="generalEnabled"
-                android:defaultValue="true"
-                android:title="Checkbox 1"/>
-         <CheckBoxPreference
-                android:key="generalOpenable"
-                android:defaultValue="true"
-                android:title="Checkbox 2"
-                android:summary="A checkbox" />
+        <EditTextPreference
+                android:key="firstName"
+                android:title="First Name"/>
+         <EditTextPreference
+                android:key="lastName"
+                android:title="Last Name"/>
+         <EditTextPreference
+                android:key="title"
+                android:title="Title"/>
+         <Preference
+                android:title="Avatar"/>
     </PreferenceCategory>           
 </PreferenceScreen>         
