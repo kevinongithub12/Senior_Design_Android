@@ -18,33 +18,32 @@ import com.parse.SaveCallback;
 public class ParseRacer{
 	private ParseUser mUser;
 	
-	public String firstName = "";
-	public String lastName = "";
-	public String title = "";
+	public String firstName;
+	public String lastName;
+	public String title;
 	public ParseFile avatar = new ParseFile(new byte[0]);
-	public int totalRaces = 0;
-	public int wins = 0;
-	public int losses = 0;
+	public int totalRaces;
+	public int wins;
+	public int losses;
 	
-	public boolean waiting = false;
-	public ParseObject currentTrack = new ParseObject("ParseTrack");
-	public JSONArray recordedCoordinates = new JSONArray();
+	public boolean isInitiator;
+	public boolean waiting;
+	public ParseObject currentTrack;
+	public JSONArray recordedCoordinates;
 
 	public ParseRacer(ParseUser user){
 		mUser = user;
-		try {
-		    avatar = mUser.getParseFile("avatar");
-		    if(avatar == null){
-		    	throw new Exception();
-		    }
-		} catch(Exception e){
-			avatar = new ParseFile(new byte[0]);
-			try {
-				avatar.save();
-			} catch (ParseException e1) {
-				e1.printStackTrace();
-			}
-		}
+		firstName = mUser.getString("firstName") != null ? mUser.getString("firstName") : "";
+		lastName = mUser.getString("lastName") != null ? mUser.getString("lastName") : "";
+		title = mUser.getString("title") != null ? mUser.getString("title") : "";
+		avatar = mUser.getParseFile("avatar") != null ? mUser.getParseFile("avatar") : new ParseFile(new byte[0]);
+	    totalRaces = mUser.getInt("totalRaces");
+	    wins = mUser.getInt("wins");
+	    losses = mUser.getInt("losses");
+	    isInitiator = mUser.getBoolean("isInitiator");
+	    waiting = mUser.getBoolean("waiting");
+	    currentTrack = mUser.getParseObject("currentTrack") != null ? mUser.getParseObject("currentTrack") : new ParseObject("ParseTrack");
+	    recordedCoordinates = mUser.getJSONArray("recordedCoordinates") != null ? mUser.getJSONArray("recordedCoordinates") : new JSONArray();
 	}
 	
 	public void setAvatarDrawable(Drawable drawable){
@@ -59,7 +58,7 @@ public class ParseRacer{
 		try {
 			icon = Drawable.createFromStream(new ByteArrayInputStream(avatar.getData()), "");
 			icon.setBounds(0 - icon.getIntrinsicWidth()/2, 0 - icon.getIntrinsicHeight(), icon.getIntrinsicWidth()/2, 0);
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return icon;
@@ -73,6 +72,7 @@ public class ParseRacer{
 		mUser.put("totalRaces", totalRaces);
 		mUser.put("wins", wins);
 		mUser.put("losses", losses);
+		mUser.put("isInitiator", isInitiator);
 		mUser.put("waiting", waiting);
 		mUser.put("currentTrack", currentTrack);
 		mUser.put("recordedCoordinates", recordedCoordinates);
@@ -86,6 +86,7 @@ public class ParseRacer{
 		mUser.put("totalRaces", totalRaces);
 		mUser.put("wins", wins);
 		mUser.put("losses", losses);
+		mUser.put("isInitiator", isInitiator);
 		mUser.put("waiting", waiting);
 		mUser.put("currentTrack", currentTrack);
 		mUser.put("recordedCoordinates", recordedCoordinates);

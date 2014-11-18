@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class ParseTrack{
 	public ParseObject object = new ParseObject("ParseTrack");
@@ -18,11 +19,8 @@ public class ParseTrack{
 	public ParseTrack(ParseObject object){
 		createdBy = (ParseUser) object.get("createdBy");
 		points = object.getJSONArray("points");
-		System.out.println(points.toString());
 		name = object.getString("name");
-		System.out.println(name);
 		shared = object.getBoolean("shared");
-		System.out.println(shared);
 	}
 	public void save(){
 		object.put("createdBy", createdBy);
@@ -32,8 +30,14 @@ public class ParseTrack{
 		try {
 			object.save();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	public void saveInBackground(SaveCallback callback){
+		object.put("createdBy", createdBy);
+		object.put("points", points);
+		object.put("name", name);
+		object.put("shared", shared);
+		object.saveInBackground(callback);
 	}
 }

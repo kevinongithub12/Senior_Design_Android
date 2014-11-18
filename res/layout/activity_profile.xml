@@ -151,7 +151,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </TableRow>
-
+<!--  
         <TableRow
             android:id="@+id/tableRow8"
             android:layout_width="wrap_content"
@@ -194,7 +194,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </TableRow>
-
+-->
     </TableLayout>
 
 </LinearLayout>

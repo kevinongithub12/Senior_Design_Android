@@ -1,6 +1,5 @@
 package edu.oakland.racetracker;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import com.mapquest.android.maps.AnnotationView;
 import com.mapquest.android.maps.CircleOverlay;
 import com.mapquest.android.maps.DefaultItemizedOverlay;
 import com.mapquest.android.maps.GeoPoint;
@@ -34,10 +34,6 @@ import com.mapquest.android.maps.MapView;
 import com.mapquest.android.maps.MapView.MapViewEventListener;
 import com.mapquest.android.maps.Overlay;
 import com.mapquest.android.maps.OverlayItem;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 public class MyMapActivity extends MapActivity{
     private Context mContext;
@@ -45,6 +41,7 @@ public class MyMapActivity extends MapActivity{
 	private MapView map;
 	private DefaultItemizedOverlay racerPointOverlay;
 	private DefaultItemizedOverlay routePointOverlay;
+	private List<AnnotationView> annotations = new ArrayList<AnnotationView>();
 	
 	private LineOverlay routeLineOverlay;
 	private ParseTrack currentTrack;
@@ -54,7 +51,12 @@ public class MyMapActivity extends MapActivity{
 		List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
 		List<Overlay> overlays = map.getOverlays();
 		overlays.clear();
+		
 		routePointOverlay.clear();
+		for(AnnotationView a : annotations){
+			a.hide();
+		}
+		annotations.clear();
 
 		Paint paint = new Paint();
         paint.setColor(Color.GREEN);
@@ -66,8 +68,23 @@ public class MyMapActivity extends MapActivity{
 				JSONTrackPoint item = new JSONTrackPoint(currentTrack.points.getJSONObject(i));
 				GeoPoint gp = new GeoPoint(item.getLatitude(), item.getLongitude());
 				geoPoints.add(gp);
-				routePointOverlay.addItem(new OverlayItem(gp, item.getDescription(), ""));
-				overlays.add(new CircleOverlay(gp, item.getRadius()+5000, paint));
+				
+				OverlayItem overlayItem = new OverlayItem(gp, item.getDescription(), "");
+				Drawable icon = getResources().getDrawable(
+						i==0 ? R.drawable.map_marker_flag_1_right_chartreuse_icon:
+					    i==currentTrack.points.length()-1 ? R.drawable.map_marker_chequered_flag_right_chartreuse_icon:
+					    R.drawable.map_marker_ball_chartreuse_icon
+					    		);
+				icon.setBounds(0 - icon.getIntrinsicWidth() / 2, 0 - icon.getIntrinsicHeight(), icon.getIntrinsicWidth() / 2, 0);
+				overlayItem.setMarker(icon);
+				routePointOverlay.addItem(overlayItem);
+				overlays.add(new CircleOverlay(gp, item.getRadius(), paint));
+				if(!item.getDescription().isEmpty()){
+				    AnnotationView a = new AnnotationView(map);
+				    a.setAnimated(false);
+				    a.showAnnotationView(overlayItem);
+				annotations.add(a);
+				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -75,9 +92,7 @@ public class MyMapActivity extends MapActivity{
 		if(geoPoints.isEmpty()){
 			geoPoints.add(new GeoPoint(.0,.0));
 		}
-		
-		
-		
+
 		Paint paint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint1.setColor(Color.BLUE);
         paint1.setAlpha(100);
@@ -92,14 +107,23 @@ public class MyMapActivity extends MapActivity{
 	    	JSONPoint last;
 			try {
 				last = new JSONPoint(racer.recordedCoordinates.getJSONObject(racer.recordedCoordinates.length()-1));
-				OverlayItem racerItem = new OverlayItem(new GeoPoint(last.getLatitude(), last.getLongitude()), "", "");
+				OverlayItem racerItem = new OverlayItem(new GeoPoint(last.getLatitude(), last.getLongitude()), "", racer.firstName+" "+racer.lastName);
 		    	racerItem.setMarker(racer.getAvatarDrawable());
 		    	racerPointOverlay.addItem(racerItem);
+		    	
+		    	if(!racer.firstName.isEmpty()){
+				    AnnotationView a = new AnnotationView(map);
+				    a.setAnimated(false);
+				    a.showAnnotationView(racerItem);
+				annotations.add(a);
+				}
+		    	
+		    	
+		    	
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 	    }
-	    
 		overlays.add(routePointOverlay);
 		overlays.add(racerPointOverlay);
 		overlays.add(routeLineOverlay);
@@ -111,7 +135,11 @@ public class MyMapActivity extends MapActivity{
 		super.onCreate(savedInstanceState);
 		
 		mContext = this;
-		racers.add(RaceTrackerApp.mUser);
+		
+		currentTrack = RaceTrackerApp.currentTrack;
+		System.out.println(currentTrack.points.toString());
+		
+		racers.add(RaceTrackerApp.mRacer);
 		racers.addAll(RaceTrackerApp.testRacers);
 		
 		startService(new Intent(mContext, LocationService.class));
@@ -160,7 +188,7 @@ public class MyMapActivity extends MapActivity{
 			@Override
 			public void zoomStart(MapView arg0) {}
 		});
-		
+		drawRoute();
 		RacerListAdapter adapter = new RacerListAdapter(this, R.layout.racer_list_item);
 		adapter.addAll(RaceTrackerApp.testRacers);
 		ListView list = (ListView) findViewById(R.id.map_racer_list);
@@ -168,11 +196,9 @@ public class MyMapActivity extends MapActivity{
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				Intent intent = new Intent(mContext, ProfileActivity.class);
-				intent.putExtra("profile", ((ParseRacer)arg0.getItemAtPosition(arg2)).toString());
-				startActivity(intent);
+				RaceTrackerApp.viewingProfile = (ParseRacer)arg0.getItemAtPosition(arg2);
+				startActivity(new Intent(mContext, ProfileActivity.class));
 			}
-			
 		});
 		
 		mLocationChangeReceiver = new BroadcastReceiver(){
@@ -186,19 +212,20 @@ public class MyMapActivity extends MapActivity{
 					end = new JSONTrackPoint(currentTrack.points.getJSONObject(currentTrack.points.length()-1));
 					if(end != null && p.distanceInKilometersTo(end) < .5){
 						Toast.makeText(mContext, "WINNER WINNER CHICKEN DINNER", Toast.LENGTH_LONG).show();
-						RaceTrackerApp.mUser.wins++;
+						RaceTrackerApp.mRacer.wins++;
 						//ParsePush.sendMessageInBackground(message, query);
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-				RaceTrackerApp.mUser.recordedCoordinates.put(p);
+				RaceTrackerApp.mRacer.recordedCoordinates.put(p);
 				drawRoute();
-				try {RaceTrackerApp.mUser.save();} catch (ParseException e) {}
+				//try {RaceTrackerApp.mRacer.save();} catch (ParseException e) {}
 				}
 			}	
 		};
-		LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationChangeReceiver, new IntentFilter("location_changed"));	
+		LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationChangeReceiver, new IntentFilter("location_changed"));
+		
 	}
 	
 	@Override
@@ -225,7 +252,7 @@ public class MyMapActivity extends MapActivity{
 	
 	@Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
+	    /*switch (item.getItemId()) {
 	    case R.id.menu_load:
 	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseTrack");
 	    	query.whereEqualTo("createdBy", ParseUser.getCurrentUser());
@@ -244,7 +271,7 @@ public class MyMapActivity extends MapActivity{
 	      break;
 	    default:
 	      break;
-	    }
+	    }*/
 	    return true;
 	  } 
 }

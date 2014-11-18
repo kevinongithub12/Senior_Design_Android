@@ -1,38 +1,60 @@
 package edu.oakland.racetracker;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
+import com.mapquest.android.maps.AnnotationView;
+import com.mapquest.android.maps.CircleOverlay;
 import com.mapquest.android.maps.DefaultItemizedOverlay;
 import com.mapquest.android.maps.GeoPoint;
 import com.mapquest.android.maps.LineOverlay;
 import com.mapquest.android.maps.MapActivity;
 import com.mapquest.android.maps.MapView;
+import com.mapquest.android.maps.Overlay;
 import com.mapquest.android.maps.MapView.MapViewEventListener;
 import com.mapquest.android.maps.Overlay.OverlayTapListener;
 import com.mapquest.android.maps.OverlayItem;
 import com.mapquest.android.maps.RectangleOverlay;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class MapCreatorActivity extends MapActivity{
+	private Context mContext;
 	private MapView map;
 	private DefaultItemizedOverlay routePointOverlay;
 	private LineOverlay routeLineOverlay;
 	private RectangleOverlay touchOverlay;
+	private List<AnnotationView> annotations = new ArrayList<AnnotationView>();
 	
 	public static ParseTrack currentTrack = new ParseTrack(ParseUser.getCurrentUser());
 	
@@ -40,38 +62,129 @@ public class MapCreatorActivity extends MapActivity{
 	
 	private void drawRoute(){
 		List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
+		List<Overlay> overlays = map.getOverlays();
+		Iterator<Overlay> iter = overlays.iterator();
+		while(iter.hasNext()){
+			Overlay o = iter.next();
+			if(o instanceof CircleOverlay || o instanceof LineOverlay){
+				iter.remove();
+			}
+		}
+		
+		
 		routePointOverlay.clear();
+		for(AnnotationView a : annotations){
+			a.hide();
+		}
+		annotations.clear();
+		
+		Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.setAlpha(50);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.FILL);
+		
 		for(int i = 0; i < currentTrack.points.length(); i++){
 			try {
 				JSONTrackPoint item = new JSONTrackPoint(currentTrack.points.getJSONObject(i));
 				GeoPoint gp = new GeoPoint(item.getLatitude(), item.getLongitude());
 				geoPoints.add(gp);
-				routePointOverlay.addItem(new OverlayItem(gp, item.getDescription(), ""));
+				
+				OverlayItem overlayItem = new OverlayItem(gp, null, item.getDescription());
+				Drawable icon = getResources().getDrawable(
+						i==0 ? R.drawable.map_marker_flag_1_right_chartreuse_icon:
+					    i==currentTrack.points.length()-1 ? R.drawable.map_marker_chequered_flag_right_chartreuse_icon:
+					    R.drawable.map_marker_ball_chartreuse_icon
+					    		);
+				icon.setBounds(0 - icon.getIntrinsicWidth() / 2, 0 - icon.getIntrinsicHeight(), icon.getIntrinsicWidth() / 2, 0);
+				overlayItem.setMarker(icon);
+				if(!item.getDescription().isEmpty()){
+				    AnnotationView a = new AnnotationView(map);
+				    a.setAnimated(false);
+				    a.showAnnotationView(overlayItem);
+				annotations.add(a);
+				}
+				routePointOverlay.addItem(overlayItem);
+				overlays.add(new CircleOverlay(gp, item.getRadius(), paint));
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		if(geoPoints.isEmpty()){
 			geoPoints.add(new GeoPoint(.0,.0));
 		}
+		
+		Paint paint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint1.setColor(Color.BLUE);
+        paint1.setAlpha(100);
+        paint1.setStyle(Paint.Style.STROKE);
+        paint1.setStrokeJoin(Paint.Join.ROUND);
+        paint1.setStrokeCap(Paint.Cap.ROUND);
+        paint1.setStrokeWidth(5);
+		routeLineOverlay = new LineOverlay(paint1);
 	    routeLineOverlay.setData(geoPoints);
+	    
+	    //overlays.add(routePointOverlay);
+		overlays.add(routeLineOverlay);
     	map.invalidate();
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		mContext = this;
 		setContentView(R.layout.activity_map_creator);
 		
 		map = (MapView) findViewById(R.id.map_map);
 		
 		routePointOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker)){
     		@Override
-		    protected boolean onTap(int index){
+		    protected boolean onTap(final int index){
+    			final View popupView = getLayoutInflater().inflate(R.layout.map_creator_popup, null);
+    			final EditText descriptionText = (EditText) popupView.findViewById(R.id.pointDescriptionText);
+    			final CheckBox radiusCheckbox = (CheckBox) popupView.findViewById(R.id.pointRadiusCheckbox);
+    			final EditText radiusText = (EditText) popupView.findViewById(R.id.pointRadiusText);
+    			
+    			JSONTrackPoint p = null;
+		    	try {
+					p = new JSONTrackPoint(currentTrack.points.getJSONObject(index));
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+    			final JSONTrackPoint newPoint = p;
+    			
+    			descriptionText.setText(newPoint.getDescription());
+    			radiusCheckbox.setChecked(newPoint.getImportant());
+    			radiusText.setText(newPoint.getRadius()+"");
+    			
+    			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+    			builder.setTitle("Edit Track Point")
+    			.setCancelable(false)
+    			.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+    			    public void onClick(DialogInterface dialog, int id) {
+    			    	currentTrack.points.remove(index);
+    			    	drawRoute();
+    			    }
+    			})
+    			.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+    			    public void onClick(DialogInterface dialog, int id) {
+    			    	
+    			    	newPoint.setDescription(descriptionText.getText().toString());
+    			    	newPoint.setImportant(radiusCheckbox.isChecked());
+    			    	newPoint.setRadius(Double.parseDouble(radiusText.getText().toString()));
+    			    	try {
+							currentTrack.points.put(index, newPoint);
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    			        dialog.cancel();
+    			        drawRoute();
+    			    }
+    			}).setView(popupView);
+    			AlertDialog alert = builder.create();
+    			alert.show();
     			idiotFlag = true;
-    			currentTrack.points.remove(index);
-    			drawRoute();
 		    	return true;
 		    }
     	};
@@ -167,31 +280,102 @@ public class MapCreatorActivity extends MapActivity{
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	    case R.id.menu_load:
-	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseTrack");
-	    	query.whereEqualTo("createdBy", ParseUser.getCurrentUser());
-	    	try {
-				List<ParseObject> savedTracks = query.find();
-				for(ParseObject po : savedTracks){
-					Set<String> keys = po.keySet();
-					for(String key : keys){
-						System.out.println(key);
+
+	    	final View popupView = getLayoutInflater().inflate(R.layout.track_select_list, null);
+	    	final ListView trackListView = (ListView) popupView.findViewById(R.id.track_select_listview);
+	    	final TrackListAdapter trackListAdapter = new TrackListAdapter(mContext, R.layout.track_select_list_item);
+	    	final LinearLayout loaderLayout = (LinearLayout) popupView.findViewById(R.id.track_select_loading);
+	    	
+	    	trackListView.setOnItemClickListener(new OnItemClickListener(){
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+					currentTrack = (ParseTrack) arg0.getAdapter().getItem(arg2);
+					drawRoute();
+				}    	
+	    	});
+	    	
+	    	AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setTitle("Select a track")
+			.setCancelable(false)
+			.setView(popupView)
+			.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			final AlertDialog alert = builder.create();
+			alert.show();
+			
+			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("ParseTrack");
+			query.findInBackground(new FindCallback<ParseObject>(){
+				@Override
+				public void done(List<ParseObject> arg0, ParseException arg1) {
+					if(arg1 != null){
+						alert.dismiss();
+						Toast.makeText(getApplicationContext(), arg1.getMessage(), Toast.LENGTH_LONG).show();
+					}
+					else{
+						trackListAdapter.clear();
+						for(ParseObject o : arg0){
+							trackListAdapter.add(new ParseTrack(o));
+						}
+						trackListView.setAdapter(trackListAdapter);
+						trackListView.setVisibility(View.VISIBLE);
+						loaderLayout.setVisibility(View.GONE);
 					}
 				}
-				
-				currentTrack = new ParseTrack(savedTracks.get(0));
-				drawRoute();
-				Toast.makeText(this, "Loaded trackPoints!", Toast.LENGTH_LONG).show();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			});
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	
 	      break;
 	    case R.id.menu_save:
-	    	ParseTrack track = new ParseTrack(ParseUser.getCurrentUser());
-	    	track.name = "TEST";
-	    	track.points = currentTrack.points;
-	    	track.save();
-	    	Toast.makeText(this, "Saved trackPoints!", Toast.LENGTH_LONG).show();
+	    	AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+	    	builder1.setTitle("Track Name");
+	    	final EditText input = new EditText(this);
+	    	builder1.setView(input);
+	    	builder1.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+	    	});
+	    	builder1.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	    	public void onClick(DialogInterface dialog, int whichButton) {
+	    	  
+	    	  }
+	    	});
+	    	final AlertDialog alert1 = builder1.create();
+	    	alert1.setButton(ProgressDialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(final DialogInterface dialog, int which) {
+					((AlertDialog) dialog).getButton(AlertDialog.BUTTON1).setEnabled(false);
+					((AlertDialog) dialog).getButton(AlertDialog.BUTTON2).setEnabled(false);
+				    ((AlertDialog)dialog).setView(new ProgressBar(mContext));
+					String value = input.getText().toString();
+			    	  ParseTrack track = new ParseTrack(ParseUser.getCurrentUser());
+			    	  track.name = value;
+				      track.points = currentTrack.points;
+				      track.saveInBackground(new SaveCallback(){
+							@Override
+							public void done(ParseException arg0) {
+								if(arg0 != null){
+									Toast.makeText(getApplicationContext(), arg0.getMessage(), Toast.LENGTH_LONG).show();
+								}
+								else{
+									Toast.makeText(getApplicationContext(), "Saved track!", Toast.LENGTH_LONG).show();
+								}
+								dialog.dismiss();
+							}	
+				    	});
+				}
+			});
+	    	alert1.show();
 	      break;
 	    default:
 	      break;

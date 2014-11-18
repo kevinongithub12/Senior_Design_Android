@@ -4,12 +4,12 @@
     android:layout_height="wrap_content"
     android:padding="10dp" >
     <LinearLayout
-        android:id="@+id/racer_list_avatar_container"
+        android:id="@+id/track_list_thumb_container"
         android:layout_width="96dp"
         android:layout_height="match_parent"
         android:gravity="center">
     <ImageView
-        android:id="@+id/racer_list_avatar"
+        android:id="@+id/track_list_thumb"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:scaleType="centerInside"/>
@@ -25,7 +25,7 @@
     android:layout_gravity="right"
         android:orientation="horizontal">
         <TextView
-        android:id="@+id/racer_list_name"
+        android:id="@+id/track_list_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
          android:layout_weight="1"
