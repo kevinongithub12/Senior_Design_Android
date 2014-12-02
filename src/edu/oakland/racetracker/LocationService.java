@@ -9,18 +9,16 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 public class LocationService extends Service implements LocationListener{
     //Ignore location updates before X time or X distance change
-    private static final long LOCATION_TIME_TRIGGER = 1000*30;
-	private static final float LOCATION_DISTANCE_TRIGGER = 10;
-	 private int iter;
+    private static final long LOCATION_TIME_TRIGGER = 0;
+	private static final float LOCATION_DISTANCE_TRIGGER = 0;
     private LocationManager mLocationManager;
-	private MockLocationProvider mock;
+	//private MockLocationProvider mock;
     private static Location mSavedLocation;
     
     //Might have to tweak this for accuracy
@@ -51,7 +49,7 @@ public class LocationService extends Service implements LocationListener{
 		startForeground(0xBADA55, n);
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		mSavedLocation = mLocationManager.getLastLocation();
-
+/*
 		mock = new MockLocationProvider("MOCK", this);
 		 
 	    //Set test location
@@ -73,7 +71,7 @@ public class LocationService extends Service implements LocationListener{
 			        }
 			    }, 
 			10000);
-	    
+	*/    
 		List<String> providers = mLocationManager.getAllProviders();
 		for(String provider : providers){
 			mLocationManager.requestLocationUpdates(provider, LOCATION_TIME_TRIGGER, LOCATION_DISTANCE_TRIGGER, this);
@@ -82,8 +80,7 @@ public class LocationService extends Service implements LocationListener{
 				mSavedLocation = loc;
 			}
 		}
-		
-		mLocationManager.requestLocationUpdates("MOCK", 0, 0, this);
+		//mLocationManager.requestLocationUpdates("MOCK", 0, 0, this);
 	}
 	
 	@Override

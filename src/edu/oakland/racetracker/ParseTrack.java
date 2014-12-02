@@ -17,6 +17,7 @@ public class ParseTrack{
 		createdBy = user;
 	}
 	public ParseTrack(ParseObject object){
+		this.object = object;
 		createdBy = (ParseUser) object.get("createdBy");
 		points = object.getJSONArray("points");
 		name = object.getString("name");

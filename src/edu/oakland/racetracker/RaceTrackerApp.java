@@ -13,7 +13,6 @@ public class RaceTrackerApp extends Application{
 
 	public static ParseRacer mRacer;
 	public static ParseRacer viewingProfile;
-	public static ParseTrack currentTrack;
 	public static List<ParseRacer> testRacers = new ArrayList<ParseRacer>();
 	
 	public void onCreate() {
@@ -29,22 +28,5 @@ public class RaceTrackerApp extends Application{
 			morgan.lastName = "Freeman";
 			morgan.recordedCoordinates.put(new JSONPoint(new GeoPoint(44.2932, -105.249023)));
 			testRacers.add(morgan);
-/*
-		  mRacer = new ParseRacer(user);
-		  mRacer.setAvatarDrawable(getResources().getDrawable(R.drawable.test_sanic));
-		  
-		  mRacer.recordedCoordinates.put(new JSONPoint());
-		  mRacer.recordedCoordinates.put(new JSONPoint());
-		  mRacer.recordedCoordinates.put(new JSONPoint());
-		  
-		  mRacer.saveInBackground(new SaveCallback(){
-			@Override
-			public void done(ParseException error) {
-				if(error != null){
-					Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-				}
-			}
-		  });
-		  System.out.println("problem?");*/
 	}
 }

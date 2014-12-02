@@ -12,6 +12,10 @@
                 android:key="title"
                 android:title="Title"/>
          <Preference
-                android:title="Avatar"/>
+             android:key="avatarCamera"
+                android:title="Avatar (Camera)"/>
+         <Preference
+             android:key="avatarFile"
+                android:title="Avatar (File)"/>
     </PreferenceCategory>           
 </PreferenceScreen>         

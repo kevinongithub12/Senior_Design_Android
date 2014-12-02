@@ -1,5 +1,6 @@
 package edu.oakland.racetracker;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.annotation.SuppressLint;
@@ -25,6 +26,14 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	private Canvas mCanvas;
 	private Context mContext;
 	
+	private boolean cameraRunning = false;
+	
+	public Bitmap out = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888);
+	
+	public boolean isCameraRunning(){
+		return cameraRunning;
+	}
+	
 	public AvatarSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
@@ -39,6 +48,8 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	
 	private void setup(){
 		setDrawingCacheEnabled(true);
+		measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+		layout(0, 0, getMeasuredWidth(), getMeasuredHeight());
 		if (surface_holder == null) {
             surface_holder = getHolder();
         }
@@ -72,10 +83,10 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
                 //parameters.setPreviewSize(width, height);
                 mCamera.setDisplayOrientation(180);
             }
-
             mCamera.setParameters(parameters);
              mCamera.setPreviewDisplay(surface_holder);  
              mCamera.startPreview();
+             cameraRunning = true;
         } catch (IOException exception) {  
               mCamera.release();  
               mCamera = null;
@@ -87,6 +98,7 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mCamera.stopPreview();
         mCamera.release();
         mCamera = null;
+        cameraRunning = false;
         //RaceTrackerApp.mProfile.avatar = getDrawingCache();
         this.onDraw(mCanvas);
 	}
@@ -108,8 +120,33 @@ public class AvatarSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		else{
 			//bmp = Bitmap.createScaledBitmap(RaceTrackerApp.mProfile.avatar, 400, 400, true);
 		}
-		canvas.drawColor(Color.BLACK);
-        //canvas.drawBitmap(bmp, 0, 0, new Paint());
+		//canvas.drawColor(Color.BLACK);
+		buildDrawingCache();
+		out = Bitmap.createBitmap(getDrawingCache()); 
+		
+		
+		
+		FileOutputStream fos = null;
+		try {
+		    fos = new FileOutputStream("/sdcard/cap.png");
+		    out.compress(Bitmap.CompressFormat.PNG, 100, fos); // bmp is your Bitmap instance
+		    // PNG is a lossless format, the compression factor (100) is ignored
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        if (fos != null) {
+		            fos.close();
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		
+		
+		
+		
+        canvas.drawBitmap(out, 0, 0, new Paint());
         //RaceTrackerApp.mProfile.avatar = bmp;
 	}
 

@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.Toast;
 
@@ -34,25 +37,111 @@ import com.mapquest.android.maps.MapView;
 import com.mapquest.android.maps.MapView.MapViewEventListener;
 import com.mapquest.android.maps.Overlay;
 import com.mapquest.android.maps.OverlayItem;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class MyMapActivity extends MapActivity{
     private Context mContext;
 	private BroadcastReceiver mLocationChangeReceiver;
 	private MapView map;
-	private DefaultItemizedOverlay racerPointOverlay;
-	private DefaultItemizedOverlay routePointOverlay;
 	private List<AnnotationView> annotations = new ArrayList<AnnotationView>();
-	
-	private LineOverlay routeLineOverlay;
 	private ParseTrack currentTrack;
 	private List<ParseRacer> racers = new ArrayList<ParseRacer>();
+	private PopDialog popup;
+	private DefaultItemizedOverlay routePointOverlay;
+	private DefaultItemizedOverlay racerPointOverlay;
+	private ListView list;
+	private RacerListAdapter adapter;
+	
+	private void findParticipants(){
+		ParseQuery<ParseUser> query = ParseUser.getQuery();
+		query.include("currentTrack");
+		//query.whereEqualTo("currentTrack", currentTrack.object.getObjectId());
+		//query.whereMatches("currentTrack", currentTrack.object.getObjectId());
+		query.findInBackground(new FindCallback<ParseUser>(){
+			@Override
+			public void done(List<ParseUser> arg0, ParseException arg1) {
+				if(arg1 != null){
+					Toast.makeText(mContext, arg1.getMessage(), Toast.LENGTH_LONG).show();
+				}
+				else{
+				racers.clear();
+				for(ParseUser pu : arg0){	
+					if(pu.getParseObject("currentTrack") != null && currentTrack.name.equals(pu.getParseObject("currentTrack").getString("name"))){
+						ParseRacer r = new ParseRacer(pu);
+						if(r.isInitiator && !r.waiting){
+							popup.dismiss();
+						}
+						racers.add(r);
+					}
+					
+				}
+				adapter.clear();
+				adapter.addAll(racers);
+				drawRoute();
+				checkWin();
+				}
+			}
+		});
+	}
+	
+	private void checkWin(){
+		for(ParseRacer r : racers){
+			for(int i = 0; i < r.recordedCoordinates.length(); i++){
+				JSONTrackPoint end;
+				try {
+					end = new JSONTrackPoint(currentTrack.points.getJSONObject(currentTrack.points.length()-1));
+					JSONPoint p = new JSONPoint(r.recordedCoordinates.getJSONObject(i));
+					if(end != null && p.distanceInKilometersTo(end)*1000 < end.getRadius()){
+						System.out.println(p.distanceInKilometersTo(end));
+						System.out.println(end.getRadius());
+						endRace(r.firstName.equals(RaceTrackerApp.mRacer.firstName));
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private void endRace(final boolean win){
+		stopService(new Intent(mContext, LocationService.class));
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Game Over")
+		.setMessage(win?"You win!":"You lose! Good day, sir!")
+		.setCancelable(false)
+		.setNegativeButton(win?"Yay":"Awww...", new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(final DialogInterface dialog, int which) {
+				RaceTrackerApp.mRacer.totalRaces++;
+				RaceTrackerApp.mRacer.wins += win ? 1:0;
+				RaceTrackerApp.mRacer.losses += win ? 0:1;
+				RaceTrackerApp.mRacer.saveInBackground(new SaveCallback(){
+					@Override
+					public void done(ParseException arg0) {
+						dialog.dismiss();
+						finish();
+					}
+					
+				});
+			}
+		});
+		final AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
 	
 	private void drawRoute(){
 		List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
 		List<Overlay> overlays = map.getOverlays();
 		overlays.clear();
 		
-		routePointOverlay.clear();
+
+
+		
 		for(AnnotationView a : annotations){
 			a.hide();
 		}
@@ -100,47 +189,38 @@ public class MyMapActivity extends MapActivity{
         paint1.setStrokeJoin(Paint.Join.ROUND);
         paint1.setStrokeCap(Paint.Cap.ROUND);
         paint1.setStrokeWidth(5);
-		routeLineOverlay = new LineOverlay(paint1);
+		LineOverlay routeLineOverlay = new LineOverlay(paint1);
 	    routeLineOverlay.setData(geoPoints);
-	    
 	    for(ParseRacer racer : racers){
 	    	JSONPoint last;
 			try {
+				System.out.println(racer.firstName);
 				last = new JSONPoint(racer.recordedCoordinates.getJSONObject(racer.recordedCoordinates.length()-1));
 				OverlayItem racerItem = new OverlayItem(new GeoPoint(last.getLatitude(), last.getLongitude()), "", racer.firstName+" "+racer.lastName);
 		    	racerItem.setMarker(racer.getAvatarDrawable());
 		    	racerPointOverlay.addItem(racerItem);
-		    	
 		    	if(!racer.firstName.isEmpty()){
 				    AnnotationView a = new AnnotationView(map);
 				    a.setAnimated(false);
 				    a.showAnnotationView(racerItem);
 				annotations.add(a);
-				}
-		    	
-		    	
-		    	
+				}    	
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 	    }
+	    overlays.add(routeLineOverlay);
 		overlays.add(routePointOverlay);
 		overlays.add(racerPointOverlay);
-		overlays.add(routeLineOverlay);
-	    map.invalidate();
+		map.invalidate();
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		
 		mContext = this;
-		
-		currentTrack = RaceTrackerApp.currentTrack;
-		System.out.println(currentTrack.points.toString());
-		
-		racers.add(RaceTrackerApp.mRacer);
-		racers.addAll(RaceTrackerApp.testRacers);
+		currentTrack = RaceTrackerApp.mRacer.currentTrack;
+		findParticipants();
 		
 		startService(new Intent(mContext, LocationService.class));
 		setContentView(R.layout.activity_mymap);
@@ -150,19 +230,24 @@ public class MyMapActivity extends MapActivity{
 		tabHost.addTab(tabHost.newTabSpec("Map").setContent(R.id.map_map_container).setIndicator("Map", null));
 		tabHost.addTab(tabHost.newTabSpec("Racers").setContent(R.id.map_racer_list_container).setIndicator("Racers", null));
 		
+		
+		popup = new PopDialog(mContext);
+		popup.getAlert().setView(new ProgressBar(mContext));
+		popup.getAlert().setCancelable(false);
+		popup.getAlert().setMessage(RaceTrackerApp.mRacer.isInitiator?"Press Ok when ready":"Please wait...");
+		if(RaceTrackerApp.mRacer.isInitiator){
+		popup.getAlert().setButton(AlertDialog.BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {		
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				RaceTrackerApp.mRacer.waiting = false;
+			}
+		});
+		}
+		popup.show(getFragmentManager(), "");
+			
 		map = (MapView) findViewById(R.id.map_map);
-		
-		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLUE);
-        paint.setAlpha(100);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(5);
-		routeLineOverlay = new LineOverlay(paint);
 		routePointOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker));
-		racerPointOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker));
-		
+		racerPointOverlay = new DefaultItemizedOverlay(getResources().getDrawable(R.drawable.location_marker));		
         map.getController().setZoom(5);
 		map.getController().setCenter(new GeoPoint(38.0,-104.0));
 		map.setBuiltInZoomControls(true);
@@ -189,9 +274,8 @@ public class MyMapActivity extends MapActivity{
 			public void zoomStart(MapView arg0) {}
 		});
 		drawRoute();
-		RacerListAdapter adapter = new RacerListAdapter(this, R.layout.racer_list_item);
-		adapter.addAll(RaceTrackerApp.testRacers);
-		ListView list = (ListView) findViewById(R.id.map_racer_list);
+		adapter = new RacerListAdapter(this, R.layout.racer_list_item);
+		list = (ListView) findViewById(R.id.map_racer_list);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
@@ -206,21 +290,21 @@ public class MyMapActivity extends MapActivity{
 			@Override
 			public void onReceive(Context arg0, Intent arg1) {
 				p = LocationService.getLastPoint();
+				Toast.makeText(mContext, "New Location", Toast.LENGTH_LONG).show();
 				if(currentTrack != null){
-				JSONTrackPoint end;
-				try {
-					end = new JSONTrackPoint(currentTrack.points.getJSONObject(currentTrack.points.length()-1));
-					if(end != null && p.distanceInKilometersTo(end) < .5){
-						Toast.makeText(mContext, "WINNER WINNER CHICKEN DINNER", Toast.LENGTH_LONG).show();
-						RaceTrackerApp.mRacer.wins++;
-						//ParsePush.sendMessageInBackground(message, query);
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
 				RaceTrackerApp.mRacer.recordedCoordinates.put(p);
+				RaceTrackerApp.mRacer.saveInBackground(new SaveCallback(){
+					@Override
+					public void done(ParseException arg0) {
+						if(arg0 != null){
+							Toast.makeText(mContext, arg0.getMessage(), Toast.LENGTH_LONG).show();
+						}
+						else{
+							findParticipants();
+						}
+					}				
+				});
 				drawRoute();
-				//try {RaceTrackerApp.mRacer.save();} catch (ParseException e) {}
 				}
 			}	
 		};

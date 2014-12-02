@@ -42,7 +42,6 @@ public class TrackListAdapter extends ArrayAdapter < ParseTrack > {
 			System.out.println(ni.points.toString());
 			
 		}
-		iconContainer.setBackgroundColor(Color.BLACK);
 		}
 		return convertView;
 	}

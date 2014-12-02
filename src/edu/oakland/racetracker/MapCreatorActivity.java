@@ -259,8 +259,17 @@ public class MapCreatorActivity extends MapActivity{
 	}
 	
 	@Override
+	public void onPause(){
+		super.onPause();
+		finish();
+	}
+	
+	@Override
 	public void onDestroy(){
 		super.onDestroy();
+		map.getOverlays().clear();
+		map.clearTilesInMemory();
+		map.destroy();
 	}
 
 	@Override

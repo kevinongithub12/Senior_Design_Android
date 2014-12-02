@@ -14,23 +14,25 @@ public class ProfileActivity extends Activity {
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            racer = RaceTrackerApp.viewingProfile;
-            this.setContentView(R.layout.activity_profile);
-
-            ((ImageView) findViewById(R.id.profile_avatar)).setImageDrawable(racer.getAvatarDrawable());
+            setContentView(R.layout.activity_profile);
+            ((Button) this.findViewById(R.id.profile_edit)).setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View arg0) {
+					startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+				}
+            });
+        }
+        @Override
+        public void onStart(){
+        	super.onStart();
+        	racer = RaceTrackerApp.viewingProfile;
+        	((Button) this.findViewById(R.id.profile_edit)).setVisibility(racer == RaceTrackerApp.mRacer ? View.VISIBLE : View.GONE);
+        	((ImageView) findViewById(R.id.profile_avatar)).setImageDrawable(racer.getAvatarDrawable());
             ((TextView) findViewById(R.id.profile_name)).setText(racer.firstName + " " + racer.lastName);
             ((TextView) findViewById(R.id.profile_title)).setText(racer.title);
             ((TextView) findViewById(R.id.profile_total_races)).setText(racer.totalRaces+"");
             ((TextView) findViewById(R.id.profile_won)).setText(racer.wins+"");
             ((TextView) findViewById(R.id.profile_lost)).setText(racer.losses+"");
             //((TextView) findViewById(R.id.profile_speed)).setText(racer.+" Km/h");
-            
-            ((Button) this.findViewById(R.id.profile_edit)).setOnClickListener(new OnClickListener(){
-				@Override
-				public void onClick(View arg0) {
-					startActivity(new Intent(getBaseContext(), SettingsActivity.class));
-				}
-            	
-            });
         }
     }

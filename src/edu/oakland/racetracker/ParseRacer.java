@@ -11,24 +11,23 @@ import android.graphics.drawable.Drawable;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class ParseRacer{
 	private ParseUser mUser;
-	
 	public String firstName;
 	public String lastName;
 	public String title;
 	public ParseFile avatar = new ParseFile(new byte[0]);
+	public Drawable avatarDrawable;
 	public int totalRaces;
 	public int wins;
 	public int losses;
 	
 	public boolean isInitiator;
 	public boolean waiting;
-	public ParseObject currentTrack;
+	public ParseTrack currentTrack;
 	public JSONArray recordedCoordinates;
 
 	public ParseRacer(ParseUser user){
@@ -42,7 +41,7 @@ public class ParseRacer{
 	    losses = mUser.getInt("losses");
 	    isInitiator = mUser.getBoolean("isInitiator");
 	    waiting = mUser.getBoolean("waiting");
-	    currentTrack = mUser.getParseObject("currentTrack") != null ? mUser.getParseObject("currentTrack") : new ParseObject("ParseTrack");
+	    currentTrack = mUser.getParseObject("currentTrack") != null ? new ParseTrack(mUser) : null;
 	    recordedCoordinates = mUser.getJSONArray("recordedCoordinates") != null ? mUser.getJSONArray("recordedCoordinates") : new JSONArray();
 	}
 	
@@ -54,14 +53,14 @@ public class ParseRacer{
 	}
 	
 	public Drawable getAvatarDrawable(){
-		Drawable icon = null;
+		avatarDrawable = null;
 		try {
-			icon = Drawable.createFromStream(new ByteArrayInputStream(avatar.getData()), "");
-			icon.setBounds(0 - icon.getIntrinsicWidth()/2, 0 - icon.getIntrinsicHeight(), icon.getIntrinsicWidth()/2, 0);
+			avatarDrawable = Drawable.createFromStream(new ByteArrayInputStream(avatar.getData()), "");
+			avatarDrawable.setBounds(0 - avatarDrawable.getIntrinsicWidth()/2, 0 - avatarDrawable.getIntrinsicHeight(), avatarDrawable.getIntrinsicWidth()/2, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return icon;
+		return avatarDrawable;
 	}
 	
 	public void save() throws ParseException{
@@ -74,7 +73,7 @@ public class ParseRacer{
 		mUser.put("losses", losses);
 		mUser.put("isInitiator", isInitiator);
 		mUser.put("waiting", waiting);
-		mUser.put("currentTrack", currentTrack);
+		mUser.put("currentTrack", currentTrack.object);
 		mUser.put("recordedCoordinates", recordedCoordinates);
 		mUser.save();
 	}
@@ -88,7 +87,7 @@ public class ParseRacer{
 		mUser.put("losses", losses);
 		mUser.put("isInitiator", isInitiator);
 		mUser.put("waiting", waiting);
-		mUser.put("currentTrack", currentTrack);
+		if (currentTrack != null) mUser.put("currentTrack", currentTrack.object);
 		mUser.put("recordedCoordinates", recordedCoordinates);
 		mUser.saveInBackground(saveCallback);
 	}

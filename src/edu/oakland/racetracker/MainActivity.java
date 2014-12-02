@@ -2,6 +2,8 @@ package edu.oakland.racetracker;
 
 import java.util.List;
 
+import org.json.JSONArray;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -25,6 +27,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 public class MainActivity extends Activity{
@@ -35,6 +38,8 @@ public class MainActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		setContentView(R.layout.activity_main);
+		
+		
 		((Button) findViewById(R.id.main_profile_button)).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
@@ -54,11 +59,8 @@ public class MainActivity extends Activity{
 				AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
     			builder.setTitle("Start Race")
     			.setCancelable(false)
+    			//CREATE NEW RACE
     			.setPositiveButton("New", new DialogInterface.OnClickListener() {
-    			    public void onClick(DialogInterface dialog, int id) {
-    			    }
-    			})
-    			.setNegativeButton("Join", new DialogInterface.OnClickListener() {
     			    public void onClick(DialogInterface dialog, int id) {
 
     			    	dialog.dismiss();
@@ -71,8 +73,23 @@ public class MainActivity extends Activity{
     			    	trackListView.setOnItemClickListener(new OnItemClickListener(){
 							@Override
 							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-								RaceTrackerApp.currentTrack = (ParseTrack) arg0.getAdapter().getItem(arg2);
-								startActivity(new Intent(mContext, MyMapActivity.class));
+								RaceTrackerApp.mRacer.recordedCoordinates = new JSONArray();
+		    			    	RaceTrackerApp.mRacer.isInitiator = true;
+		    			    	RaceTrackerApp.mRacer.waiting = true;
+		    			    	RaceTrackerApp.mRacer.currentTrack = ((ParseTrack) arg0.getAdapter().getItem(arg2));
+		    			    	RaceTrackerApp.mRacer.saveInBackground(new SaveCallback(){
+									@Override
+									public void done(ParseException arg0) {
+										if(arg0 != null){
+											Toast.makeText(mContext, arg0.getMessage(), Toast.LENGTH_LONG).show();
+										}
+										else{
+											startActivity(new Intent(mContext, MyMapActivity.class));
+										}
+										
+									}
+		    			    	});
+								
 							}    		
     			    	});
     			    	
@@ -114,6 +131,93 @@ public class MainActivity extends Activity{
     			    	
     			    	
     			    	
+    					
+    					
+    			    	
+    			    	
+    			    	
+    			    	
+    			    	
+    			    	
+    			    	
+    			    	
+    			    	
+    			    }
+    			})
+    			//JOIN EXISTING RACE
+    			.setNegativeButton("Join", new DialogInterface.OnClickListener() {
+    			    public void onClick(DialogInterface dialog, int id) {
+
+    			    	dialog.dismiss();
+ 
+    			    	final View popupView = getLayoutInflater().inflate(R.layout.track_select_list, null);
+    			    	final ListView trackListView = (ListView) popupView.findViewById(R.id.track_select_listview);
+    			    	final TrackListAdapter trackListAdapter = new TrackListAdapter(mContext, R.layout.track_select_list_item);
+    			    	final LinearLayout loaderLayout = (LinearLayout) popupView.findViewById(R.id.track_select_loading);
+    			    	
+    			    	trackListView.setOnItemClickListener(new OnItemClickListener(){
+							@Override
+							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+								RaceTrackerApp.mRacer.recordedCoordinates = new JSONArray();
+		    			    	RaceTrackerApp.mRacer.isInitiator = false;
+		    			    	RaceTrackerApp.mRacer.waiting = true;
+		    			    	RaceTrackerApp.mRacer.currentTrack = ((ParseTrack) arg0.getAdapter().getItem(arg2));
+		    			    	RaceTrackerApp.mRacer.saveInBackground(new SaveCallback(){
+									@Override
+									public void done(ParseException arg0) {
+										if(arg0 != null){
+											Toast.makeText(mContext, arg0.getMessage(), Toast.LENGTH_LONG).show();
+										}
+										else{
+											startActivity(new Intent(mContext, MyMapActivity.class));
+										}
+										
+									}
+		    			    	});
+								
+							}    		
+    			    	});
+    			    	
+    			    	AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+						builder.setTitle("Select a track")
+    					.setCancelable(false)
+    					.setView(popupView)
+    					.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+    					});
+						final AlertDialog alert = builder.create();
+						alert.show();
+						
+						ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("ParseTrack");
+    					query.findInBackground(new FindCallback<ParseObject>(){
+							@Override
+							public void done(List<ParseObject> arg0, ParseException arg1) {
+								if(arg1 != null){
+									alert.dismiss();
+									Toast.makeText(getApplicationContext(), arg1.getMessage(), Toast.LENGTH_LONG).show();
+								}
+								else{
+									trackListAdapter.clear();
+									for(ParseObject o : arg0){
+										trackListAdapter.add(new ParseTrack(o));
+									}
+									trackListView.setAdapter(trackListAdapter);
+									trackListView.setVisibility(View.VISIBLE);
+									loaderLayout.setVisibility(View.GONE);
+								}
+								
+							}
+    					});
+    						
+    			    	
+    			    	
+    			    	
+    			    	
+    					
+    					
     			    	
     			    	
     			    	
