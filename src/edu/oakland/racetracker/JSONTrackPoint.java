@@ -2,7 +2,11 @@ package edu.oakland.racetracker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+/**
+ * 
+ * @author Lukas Greib
+ * JSON Point used to represent a track
+ */
 public class JSONTrackPoint extends JSONPoint{
 	private double radius = 0;
 	private boolean important = false;
@@ -34,7 +38,6 @@ public class JSONTrackPoint extends JSONPoint{
 		description = desc;
 		update();
 	}
-	
 	
 	public double getRadius(){
 		return radius;

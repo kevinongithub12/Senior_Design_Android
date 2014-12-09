@@ -5,7 +5,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
-
+/**
+ * A simple helping class for creating popup dialogs
+ * @author Lukas Greib
+ *
+ */
 public class PopDialog extends DialogFragment{
 	private Context mContext;
 	private AlertDialog alert;

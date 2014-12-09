@@ -5,10 +5,12 @@ import java.util.List;
 
 import android.app.Application;
 
-import com.mapquest.android.maps.GeoPoint;
 import com.parse.Parse;
-import com.parse.ParseUser;
-
+/**
+ * Main class to store some global variables
+ * @author Lukas Greib
+ *
+ */
 public class RaceTrackerApp extends Application{
 
 	public static ParseRacer mRacer;
@@ -21,12 +23,12 @@ public class RaceTrackerApp extends Application{
 		  //ParseUser.enableAutomaticUser();
 		  //ParseUser user = new ParseUser();
 		  //ParseUser user = ParseUser.getCurrentUser();
-		  
+		  /*
 		  ParseRacer morgan = new ParseRacer(new ParseUser());
 			morgan.setAvatarDrawable(getResources().getDrawable(R.drawable.test_morgan));
 			morgan.firstName = "Morgan";
 			morgan.lastName = "Freeman";
 			morgan.recordedCoordinates.put(new JSONPoint(new GeoPoint(44.2932, -105.249023)));
-			testRacers.add(morgan);
+			testRacers.add(morgan);*/
 	}
 }

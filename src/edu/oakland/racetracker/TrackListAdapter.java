@@ -1,15 +1,16 @@
 package edu.oakland.racetracker;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
+/**
+ * Adapter for track list
+ * @author Lukas Greib
+ *
+ */
 public class TrackListAdapter extends ArrayAdapter < ParseTrack > {
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
@@ -27,12 +28,9 @@ public class TrackListAdapter extends ArrayAdapter < ParseTrack > {
 		}
 		
 		TextView textView = (TextView) convertView.findViewById(R.id.track_list_name);
-		ImageView imageView = (ImageView) convertView.findViewById(R.id.track_list_thumb);
-		LinearLayout iconContainer = (LinearLayout) convertView.findViewById(R.id.track_list_thumb_container);
 
 		ParseTrack ni = getItem(position);
-
-		//imageView.setImageDrawable(mContext.getResources().getDrawable(ni.avatar));
+		
 		if(textView == null){
 			System.out.println("CRAP");
 		}

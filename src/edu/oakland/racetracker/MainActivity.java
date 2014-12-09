@@ -29,7 +29,11 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
-
+/**
+ * 
+ * @author Lukas Greib
+ * The main title screen
+ */
 public class MainActivity extends Activity{
 	private Context mContext;
 	
@@ -39,7 +43,7 @@ public class MainActivity extends Activity{
 		mContext = this;
 		setContentView(R.layout.activity_main);
 		
-		
+		//Attatch listeners to all our buttons
 		((Button) findViewById(R.id.main_profile_button)).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
@@ -126,22 +130,6 @@ public class MainActivity extends Activity{
 								
 							}
     					});
-    						
-    			    	
-    			    	
-    			    	
-    			    	
-    					
-    					
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
     			    }
     			})
     			//JOIN EXISTING RACE
@@ -211,22 +199,6 @@ public class MainActivity extends Activity{
 								
 							}
     					});
-    						
-    			    	
-    			    	
-    			    	
-    			    	
-    					
-    					
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
-    			    	
     			    }
     			}).show();
 			}
@@ -251,60 +223,70 @@ public class MainActivity extends Activity{
 	        @Override
 	        public void onClick(DialogInterface dialog, int which) {}
 	            });
-				alert.show();
-				final Button loginButton = alert.getButton(DialogInterface.BUTTON_NEGATIVE);
-				loginButton.setOnClickListener(new View.OnClickListener() {
-				        @Override
-				        public void onClick(View v) {
-				        	String username = usernameText.getText().toString();
-					    	  String password = passwordText.getText().toString();
-				        	ParseUser.logInInBackground(username, password, new LogInCallback(){
-								@Override
-								public void done(ParseUser user, ParseException arg1) {
-									if(arg1 != null){
-										Toast.makeText(getApplicationContext(), arg1.getMessage(), Toast.LENGTH_LONG).show();
-									}
-									else{
-										RaceTrackerApp.mRacer = new ParseRacer(user);
-										Toast.makeText(getApplicationContext(), "Parse login successful", Toast.LENGTH_LONG).show();
-										alert.dismiss();
-									}
+		
+		if(ParseUser.getCurrentUser() == null){
+			//User is not logged in; prompt them to register
+			alert.show();
+			final Button loginButton = alert.getButton(DialogInterface.BUTTON_NEGATIVE);
+			loginButton.setOnClickListener(new View.OnClickListener() {
+			        @Override
+			        public void onClick(View v) {
+			        	String username = usernameText.getText().toString();
+				    	  String password = passwordText.getText().toString();
+			        	ParseUser.logInInBackground(username, password, new LogInCallback(){
+							@Override
+							public void done(ParseUser user, ParseException arg1) {
+								if(arg1 != null){
+									Toast.makeText(getApplicationContext(), arg1.getMessage(), Toast.LENGTH_LONG).show();
 								}
-							  });
-				        }
-				});
-				final Button registerButton = alert.getButton(DialogInterface.BUTTON_POSITIVE);
-				registerButton.setOnClickListener(new View.OnClickListener() {
-				        @Override
-				        public void onClick(View v) {
-				        	String username = usernameText.getText().toString();
-					    	  String password = passwordText.getText().toString();
-					    	  String email = emailText.getText().toString();
-					    	  
-					    	  if(!username.isEmpty() && !password.isEmpty() && !email.isEmpty()){
-					    	  final ParseUser user = new ParseUser();
-							  user.setUsername(username);
-							  user.setPassword(password);
-							  user.setEmail(email);
-							  user.signUpInBackground(new SignUpCallback(){
-								@Override
-								public void done(ParseException arg0) {
-									if(arg0 != null){
-										Toast.makeText(getApplicationContext(), arg0.getMessage(), Toast.LENGTH_LONG).show();
-									}
-									else{
-										RaceTrackerApp.mRacer = new ParseRacer(user);
-									    Toast.makeText(getApplicationContext(), "Parse sign up successful", Toast.LENGTH_LONG).show();
-									    alert.dismiss();
-									}
+								else{
+									RaceTrackerApp.mRacer = new ParseRacer(user);
+									Toast.makeText(getApplicationContext(), "Parse login successful", Toast.LENGTH_LONG).show();
+									alert.dismiss();
 								}
-							  });
-					    	  }
-					    	  else{
-					    		  Toast.makeText(getApplicationContext(), "Please fill out all fields", Toast.LENGTH_LONG).show();
-					    	  }
-				        }
-				});
+							}
+						  });
+			        }
+			});
+			final Button registerButton = alert.getButton(DialogInterface.BUTTON_POSITIVE);
+			registerButton.setOnClickListener(new View.OnClickListener() {
+			        @Override
+			        public void onClick(View v) {
+			        	String username = usernameText.getText().toString();
+				    	  String password = passwordText.getText().toString();
+				    	  String email = emailText.getText().toString();
+				    	  
+				    	  if(!username.isEmpty() && !password.isEmpty() && !email.isEmpty()){
+				    	  final ParseUser user = new ParseUser();
+						  user.setUsername(username);
+						  user.setPassword(password);
+						  user.setEmail(email);
+						  user.signUpInBackground(new SignUpCallback(){
+							@Override
+							public void done(ParseException arg0) {
+								if(arg0 != null){
+									Toast.makeText(getApplicationContext(), arg0.getMessage(), Toast.LENGTH_LONG).show();
+								}
+								else{
+									RaceTrackerApp.mRacer = new ParseRacer(user);
+								    Toast.makeText(getApplicationContext(), "Parse sign up successful", Toast.LENGTH_LONG).show();
+								    alert.dismiss();
+								}
+							}
+						  });
+				    	  }
+				    	  else{
+				    		  Toast.makeText(getApplicationContext(), "Please fill out all fields", Toast.LENGTH_LONG).show();
+				    	  }
+			        }
+			});
+
+	}
+	else{
+		//User is already loggedin
+		RaceTrackerApp.mRacer = new ParseRacer(ParseUser.getCurrentUser());
+	}
+				
 	}
 	
 	@Override

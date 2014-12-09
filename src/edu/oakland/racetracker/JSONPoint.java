@@ -5,7 +5,11 @@ import org.json.JSONObject;
 
 import com.mapquest.android.maps.GeoPoint;
 import com.parse.ParseGeoPoint;
-
+/**
+ * 
+ * @author Lukas Greib
+ * Represents a location point in JSON format
+ */
 public class JSONPoint extends JSONObject{
 	private double latitude = 0;
 	private double longitude = 0;

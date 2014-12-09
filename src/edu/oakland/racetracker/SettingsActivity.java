@@ -1,7 +1,5 @@
 package edu.oakland.racetracker;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.Set;
 
 import android.app.Activity;
@@ -11,8 +9,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -23,7 +19,11 @@ import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.SaveCallback;
-
+/**
+ * Settings activity for the profile editor
+ * @author Lukas Greib
+ *
+ */
 public class SettingsActivity extends Activity{
 	private static Context mContext;
 

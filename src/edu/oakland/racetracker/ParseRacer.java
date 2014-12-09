@@ -13,7 +13,11 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
+/**
+ * Decoration class for ParseUser that represents a racer
+ * @author Lukas Greib
+ *
+ */
 public class ParseRacer{
 	private ParseUser mUser;
 	public String firstName;

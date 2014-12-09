@@ -8,7 +8,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+/**
+ * Activity class for the profile viewer
+ * @author Lukas Greib
+ *
+ */
 public class ProfileActivity extends Activity {
 	    private ParseRacer racer;
         @Override

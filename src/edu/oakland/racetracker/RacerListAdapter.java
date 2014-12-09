@@ -11,7 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+/**
+ * Adapter for racer list
+ * @author Lukas Greib
+ *
+ */
 public class RacerListAdapter extends ArrayAdapter < ParseRacer > {
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;

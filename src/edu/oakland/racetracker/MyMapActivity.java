@@ -28,6 +28,7 @@ import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.mapquest.android.maps.AnnotationView;
+import com.mapquest.android.maps.BoundingBox;
 import com.mapquest.android.maps.CircleOverlay;
 import com.mapquest.android.maps.DefaultItemizedOverlay;
 import com.mapquest.android.maps.GeoPoint;
@@ -42,7 +43,11 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
+/**
+ * 
+ * @author Lukas Greib
+ * The racing map activity
+ */
 public class MyMapActivity extends MapActivity{
     private Context mContext;
 	private BroadcastReceiver mLocationChangeReceiver;
@@ -139,9 +144,6 @@ public class MyMapActivity extends MapActivity{
 		List<Overlay> overlays = map.getOverlays();
 		overlays.clear();
 		
-
-
-		
 		for(AnnotationView a : annotations){
 			a.hide();
 		}
@@ -215,6 +217,20 @@ public class MyMapActivity extends MapActivity{
 		map.invalidate();
 	}
 	
+	private void autoZoom(){
+		if(currentTrack != null && currentTrack.points != null){
+			List<GeoPoint> points = new ArrayList<GeoPoint>();
+			for(int i = 0; i < currentTrack.points.length(); i++){
+				try {
+					
+					JSONTrackPoint item = new JSONTrackPoint(currentTrack.points.getJSONObject(i));
+					points.add(new GeoPoint(item.getLatitude(), item.getLongitude()));
+				}catch(JSONException e){}
+			}
+			map.getController().zoomToSpan(BoundingBox.calculateBoundingBoxGeoPoint(points));
+		}
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -229,7 +245,6 @@ public class MyMapActivity extends MapActivity{
 		tabHost.setup();
 		tabHost.addTab(tabHost.newTabSpec("Map").setContent(R.id.map_map_container).setIndicator("Map", null));
 		tabHost.addTab(tabHost.newTabSpec("Racers").setContent(R.id.map_racer_list_container).setIndicator("Racers", null));
-		
 		
 		popup = new PopDialog(mContext);
 		popup.getAlert().setView(new ProgressBar(mContext));
@@ -273,6 +288,7 @@ public class MyMapActivity extends MapActivity{
 			@Override
 			public void zoomStart(MapView arg0) {}
 		});
+		autoZoom();
 		drawRoute();
 		adapter = new RacerListAdapter(this, R.layout.racer_list_item);
 		list = (ListView) findViewById(R.id.map_racer_list);
@@ -309,7 +325,6 @@ public class MyMapActivity extends MapActivity{
 			}	
 		};
 		LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationChangeReceiver, new IntentFilter("location_changed"));
-		
 	}
 	
 	@Override
@@ -325,7 +340,6 @@ public class MyMapActivity extends MapActivity{
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
-	
 	
 	@Override
 	  public boolean onCreateOptionsMenu(Menu menu) {

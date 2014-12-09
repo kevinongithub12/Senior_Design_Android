@@ -2,7 +2,11 @@ package edu.oakland.racetracker;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-
+/**
+ * 
+ * @author Lukas Greib
+ * Mock location provider used in testing
+ */
 public class MockLocationProvider {
   String providerName;
   Context ctx;

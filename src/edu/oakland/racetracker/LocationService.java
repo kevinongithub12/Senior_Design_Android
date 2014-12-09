@@ -12,7 +12,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
-
+/**
+ * 
+ * @author Lukas Greib
+ * A background service that reports location updates to the main app
+ */
 public class LocationService extends Service implements LocationListener{
     //Ignore location updates before X time or X distance change
     private static final long LOCATION_TIME_TRIGGER = 0;
@@ -49,6 +53,7 @@ public class LocationService extends Service implements LocationListener{
 		startForeground(0xBADA55, n);
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		mSavedLocation = mLocationManager.getLastLocation();
+		//This is used for testing
 /*
 		mock = new MockLocationProvider("MOCK", this);
 		 
@@ -93,8 +98,6 @@ public class LocationService extends Service implements LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
-		boolean better = isBetterLocation(mSavedLocation, location);
-		
 			mSavedLocation = location;
 			new Intent("edu.oakland.racetracker.LOCATION_CHANGED");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("location_changed"));

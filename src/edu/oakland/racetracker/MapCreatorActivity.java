@@ -3,7 +3,6 @@ package edu.oakland.racetracker;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONException;
 
@@ -11,7 +10,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -21,23 +19,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.mapquest.android.maps.AnnotationView;
+import com.mapquest.android.maps.BoundingBox;
 import com.mapquest.android.maps.CircleOverlay;
 import com.mapquest.android.maps.DefaultItemizedOverlay;
 import com.mapquest.android.maps.GeoPoint;
 import com.mapquest.android.maps.LineOverlay;
 import com.mapquest.android.maps.MapActivity;
 import com.mapquest.android.maps.MapView;
-import com.mapquest.android.maps.Overlay;
 import com.mapquest.android.maps.MapView.MapViewEventListener;
+import com.mapquest.android.maps.Overlay;
 import com.mapquest.android.maps.Overlay.OverlayTapListener;
 import com.mapquest.android.maps.OverlayItem;
 import com.mapquest.android.maps.RectangleOverlay;
@@ -47,7 +46,11 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
+/**
+ * 
+ * @author Lukas Greib
+ * Map Creator mode
+ */
 public class MapCreatorActivity extends MapActivity{
 	private Context mContext;
 	private MapView map;
@@ -58,6 +61,7 @@ public class MapCreatorActivity extends MapActivity{
 	
 	public static ParseTrack currentTrack = new ParseTrack(ParseUser.getCurrentUser());
 	
+	//This is to work around a bug when the map gets touched
 	private boolean idiotFlag = false;
 	
 	private void drawRoute(){
@@ -70,7 +74,6 @@ public class MapCreatorActivity extends MapActivity{
 				iter.remove();
 			}
 		}
-		
 		
 		routePointOverlay.clear();
 		for(AnnotationView a : annotations){
@@ -198,13 +201,7 @@ public class MapCreatorActivity extends MapActivity{
         paint.setStrokeWidth(5);
     	routeLineOverlay = new LineOverlay(paint);
 
-    	Paint paint1 = new Paint();
-        paint1.setColor(Color.YELLOW);
-        paint1.setStrokeWidth(10);
-        paint1.setAlpha(50);
-        paint1.setAntiAlias(true);
-        paint1.setStyle(Paint.Style.FILL);
-        touchOverlay = new RectangleOverlay(map.getBoundingBox(null), paint1);
+        touchOverlay = new RectangleOverlay(map.getBoundingBox(null), null);
         touchOverlay.setTapListener(new OverlayTapListener(){
 			@Override
 			public void onTap(GeoPoint arg0, MapView arg1) {
@@ -285,6 +282,21 @@ public class MapCreatorActivity extends MapActivity{
 	    return true;
 	  }
 	
+	//Zoom to the optimal distance
+	private void autoZoom(){
+		if(currentTrack != null && currentTrack.points != null){
+			List<GeoPoint> points = new ArrayList<GeoPoint>();
+			for(int i = 0; i < currentTrack.points.length(); i++){
+				try {
+					
+					JSONTrackPoint item = new JSONTrackPoint(currentTrack.points.getJSONObject(i));
+					points.add(new GeoPoint(item.getLatitude(), item.getLongitude()));
+				}catch(JSONException e){}
+			}
+			map.getController().zoomToSpan(BoundingBox.calculateBoundingBoxGeoPoint(points));
+		}
+	}
+	
 	@Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
@@ -299,6 +311,7 @@ public class MapCreatorActivity extends MapActivity{
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 					currentTrack = (ParseTrack) arg0.getAdapter().getItem(arg2);
+					autoZoom();
 					drawRoute();
 				}    	
 	    	});
@@ -335,13 +348,7 @@ public class MapCreatorActivity extends MapActivity{
 					}
 				}
 			});
-	    	
-	    	
-	    	
-	    	
-	    	
-	    	
-	    	
+
 	      break;
 	    case R.id.menu_save:
 	    	AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -378,6 +385,7 @@ public class MapCreatorActivity extends MapActivity{
 								}
 								else{
 									Toast.makeText(getApplicationContext(), "Saved track!", Toast.LENGTH_LONG).show();
+									System.exit(0);
 								}
 								dialog.dismiss();
 							}	

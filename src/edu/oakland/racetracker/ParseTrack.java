@@ -6,7 +6,11 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
+/**
+ * Decoration class for ParseObject that represents a race track
+ * @author Lukas Greib
+ *
+ */
 public class ParseTrack{
 	public ParseObject object = new ParseObject("ParseTrack");
 	public ParseUser createdBy;
